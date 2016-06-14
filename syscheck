@@ -74,6 +74,7 @@ given ($action) {
 						&send_critical('memory');
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
+						print colored(sprintf("%-3.2f%% free", $p)." \n", "green") if ($verbose);
 					}
 				}
 				when (/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -90,6 +91,7 @@ given ($action) {
 						&send_critical('memory');
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
+						print colored(sprintf("%-3.2f%% free", $p)." \n", "green") if ($verbose);
 					}
 				}
 				when (/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -106,6 +108,7 @@ given ($action) {
 						&send_critical('memory');
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
+						print colored(sprintf("%-3.2f%% free", $p)." \n", "green") if ($verbose);
 					}
 				}
 				default {
