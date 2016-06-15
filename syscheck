@@ -53,7 +53,7 @@ given ($action) {
 	when (/(?:mounts|fs|filesystems)/) {
 		# check the mounts
 		# mail if meet threshold
-		print colored("Checking mounts .... \n", "bold green");
+		print colored("Checking mounts .... ", "bold green");
 		open DF, "$df |" or die "There was a problem loading the df utility: $! \n";
 		while (my $line = <DF>) {
 			chomp($line);
@@ -82,6 +82,7 @@ given ($action) {
 							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						&send_notice($action);
+						print colored("notice. \n", "bold yellow");
 					} elsif (($cp > 1) and ($cp <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
 						given ($action) {
@@ -94,6 +95,7 @@ given ($action) {
 							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						&send_warning($action);
+						print colored("warning. \n", "yellow");
 					} elsif ($cp <= 1) {
 						print colored("Sending critical... \n", "bold red") if ($verbose);
 						given ($action) {
@@ -106,6 +108,7 @@ given ($action) {
 							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						&send_critical($action);
+						print colored("critical. \n", "bold red");
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
 						given ($action) {
@@ -117,6 +120,7 @@ given ($action) {
 							}
 							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
+						print colored("good. \n", "bold green");
 					}
 				}
 				default {
@@ -130,7 +134,7 @@ given ($action) {
 	when (/memory/) {
 		# check memory
 		# mail if meet threshold
-		print colored("Checking memory ..... \n", "bold green");
+		print colored("Checking memory ..... ", "bold green");
 		open FREE, "$free -t |" or die "There was a problem loading the free utility: $! \n";
 		while (my $line = <FREE>) {
 			chomp($line);
@@ -154,17 +158,21 @@ given ($action) {
 						print colored("Sending notice...\n", "bold yellow") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "bold yellow") if ($verbose);
 						&send_notice($action);
+						print colored("notice. \n", "bold yellow");
 					} elsif (($p > 1) and ($p <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "yellow") if ($verbose);
 						&send_warning($action);
+						print colored("warning. \n", "yellow");
 					} elsif ($p <= 1) {
 						print colored("Sending critical.... \n", "bold red") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "bold red") if ($verbose);
 						&send_critical($action);
+						print colored("critical. \n", "bold red");
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "green") if ($verbose);
+						print colored("good. \n", "bold green");
 					}
 				}
 				when (/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -174,18 +182,22 @@ given ($action) {
 					if (($p > 5) and ($p <= 10)) {
 						print colored("Sending notice...\n", "bold yellow") if ($verbose);
 						print colored(sprintf("Swap: %-3.2f%% free", $p)." \n", "bold yellow") if ($verbose);
-						&send_notice('memory');
+						&send_notice($action);
+						print colored("notice. \n", "bold yellow");
 					} elsif (($p > 1) and ($p <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
 						print colored(sprintf("Swap: %-3.2f%% free", $p)." \n", "yellow") if ($verbose);
-						&send_warning('memory');
+						&send_warning($action);
+						print colored("warning. \n", "yellow");
 					} elsif ($p <= 1) {
 						print colored("Sending critical.... \n", "bold red") if ($verbose);
 						print colored(sprintf("Swap: %-3.2f%% free", $p)." \n", "bold red") if ($verbose);
-						&send_critical('memory');
+						&send_critical($action);
+						print colored("critical. \n", "bold red");
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
 						print colored(sprintf("Swap: %-3.2f%% free", $p)." \n", "green") if ($verbose);
+						print colored("good. \n", "bold green");
 					}
 				}
 				when (/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -194,18 +206,22 @@ given ($action) {
 					if (($p > 5) and ($p <= 10)) {
 						print colored("Sending notice...\n", "bold yellow") if ($verbose);
 						print colored(sprintf("Total: %-3.2f%% free", $p)." \n", "bold yellow") if ($verbose);
-						&send_notice('memory');
+						&send_notice($action);
+						print colored("notice. \n", "bold yellow");
 					} elsif (($p > 1) and ($p <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
 						print colored(sprintf("Total: %-3.2f%% free", $p)." \n", "yellow") if ($verbose);
-						&send_warning('memory');
+						&send_warning($action);
+						print colored("warning. \n", "yellow");
 					} elsif ($p <= 1) {
 						print colored("Sending critical.... \n", "bold red") if ($verbose);
 						print colored(sprintf("Total: %-3.2f%% free", $p)." \n", "bold red") if ($verbose);
-						&send_critical('memory');
+						&send_critical($action);
+						print colored("critical. \n", "bold red");
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
 						print colored(sprintf("Total: %-3.2f%% free", $p)." \n", "green") if ($verbose);
+						print colored("good. \n", "bold green");
 					}
 				}
 				default {
