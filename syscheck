@@ -23,6 +23,8 @@ GetOptions(
 );
 
 our ($free, $df);
+our %from_bool = ('true'=>1, 'false'=>0);
+our %to_bool = (1=>'true', 0=>'false');
 
 &get_binaries;
 
@@ -278,15 +280,42 @@ sub send_message {
 	my $severity = shift(@_);
 	my $app = shift(@_);
 
-	my $msg = MIME::Lite->new(
-		'From'		=>	$CONFIG->{'from'},
-		'To'		=>	$CONFIG->{'to'},
-		'Cc'		=>	$CONFIG->{'cc'},
-		'Subject'	=>	ucfirst($severity).": ".ucfirst($app),
-		'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $severity status of $app\.\n",
+	my %sev = (
+		1	=>	'notice',
+		2	=>	'warning',
+		3	=>	'critical'
 	);
 
-	$msg->send('smtp', $CONFIG->{'smtp-server'});
+	if ($from_bool{$CONFIG->{'gmail'}}) {
+		use Email::Send::SMTP::Gmail;
+
+		my $msg = Email::Send::SMTP::Gmail->new(
+			'-smtp'		=>	'gmail.com',
+			'-login'	=>	$CONFIG->{'authuser'},
+			'-pass'		=>	$CONFIG->{'authpass'},
+		);
+
+		$msg->send(
+			'-to'		=>	$CONFIG->{'to'},
+			'-subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
+			'-verbose'	=>	0,
+			'-body'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
+			'-attachments'	=>	''
+		);
+
+		$msg->bye;
+	} else {
+		MIME::Lite->send('smtp', $CONFIG->{'smtp-server'});
+		my $msg = MIME::Lite->new(
+			'From'		=>	$CONFIG->{'from'},
+			'To'		=>	$CONFIG->{'to'},
+			'Cc'		=>	$CONFIG->{'cc'},
+			'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
+			'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
+		);
+
+		$msg->send;
+	}
 
 	return 1;
 }
