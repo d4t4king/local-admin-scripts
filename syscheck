@@ -59,11 +59,15 @@ given ($action) {
 			chomp($line);
 			given ($line) {
 				when (/total\s+used\s+free\s+shared\s+buffers\s+cached/) {
-					# skip the header
+					# skip the headers
 					next;
 				}
 				when (/total\s+used\s+free\s+shared\s+buff\/cache\s+available/) {
-					# skip the header
+					# skip the headers
+					next;
+				}
+				when (/\-\/\+ buffers\/cache\:\s+\d+\s+\d+/) {
+					# skip the headers
 					next;
 				}
 				when (/Mem:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -180,6 +184,16 @@ sub get_config {
 sub send_message {
 	my $severity = shift(@_);
 	my $app = shift(@_);
+
+	my $msg = MIME::Lite->new(
+		'From'		=>	$CONFIG->{'from'},
+		'To'		=>	$CONFIG->{'to'},
+		'Cc'		=>	$CONFIG->{'cc'},
+		'Subject'	=>	ucfirst($severity).": ".ucfirst($app),
+		'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $severity status of $app\.\n",
+	);
+
+	$msg->send('smtp', $CONFIG->{'smtp-server'});
 
 	return 1;
 }
