@@ -72,7 +72,7 @@ given ($action) {
 					# don't really care about tmp filesystems
 					next;
 				}
-				when (/(\/dev\/(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
+				when (/(\/dev\/(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 					my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
 					my $cp = ($av * 100) / $b;
 					print colored("Percnt Used: $p\%\tCalc Percnt Free: ".sprintf("%-3.2f%%", $cp)." \n", "bold cyan") if ($verbose);
