@@ -3,8 +3,9 @@
 use strict;
 use warnings;
 use feature qw( switch );
-print "PERLVER: $] \n";
-#no warnings "experimental::smartmatch";
+#print "PERLVER: $] \n";
+use 5.010;
+no warnings "experimental::smartmatch";
 
 use Term::ANSIColor;
 use Data::Dumper;
@@ -20,6 +21,10 @@ GetOptions(
 	'v|verbose+'	=>	\$verbose,
 	'c|config=s'	=>	\$config,
 );
+
+our ($free, $df);
+
+&get_binaries;
 
 &usage if ($help);
 
@@ -49,12 +54,84 @@ given ($action) {
 		# check the mounts
 		# mail if meet threshold
 		print colored("Checking mounts .... \n", "bold green");
+		open DF, "$df |" or die "There was a problem loading the df utility: $! \n";
+		while (my $line = <DF>) {
+			chomp($line);
+			given ($line) {
+				when (/Filesystem\s+/) {
+					# skip the header
+					next;
+				}
+				when (/^(?:none|udev|tmpfs)/) {
+					# don't really care about tmp filesystems
+					next;
+				}
+				when (/(\/dev\/[sv]d[a-f]\d)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
+					my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
+					my $cp = ($av * 100) / $b;
+					print colored("Percnt Used: $p\%\tCalc Percnt Free: ".sprintf("%-3.2f%%", $cp)." \n", "bold cyan") if ($verbose);
+					if (($cp > 5) and ($cp < 10)) {
+						print colored("Sending notice... \n", "bold yellow") if ($verbose);
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
+								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
+							}
+							when (/(?:mounts)/) {
+								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
+							}
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
+						}
+						&send_notice($action);
+					} elsif (($cp > 1) and ($cp <= 5)) {
+						print colored("Sending warning... \n", "yellow") if ($verbose);
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
+								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
+							}
+							when (/(?:mounts)/) {
+								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
+							}
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
+						}
+						&send_warning($action);
+					} elsif ($cp <= 1) {
+						print colored("Sending critical... \n", "bold red") if ($verbose);
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
+								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
+							}
+							when (/(?:mounts)/) {
+								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
+							}
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
+						}
+						&send_critical($action);
+					} else {
+						print colored("Within operational parameters... \n", "green") if ($verbose);
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
+								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
+							}
+							when (/(?:mounts)/) {
+								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
+							}
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
+						}
+					}
+				}
+				default {
+					print "Line didn't match: \n";
+					print "$line \n";
+				}
+			}
+		}
+		close DF or die "There was a problem closing the df utility: $! \n";
 	}
 	when (/memory/) {
 		# check memory
 		# mail if meet threshold
 		print colored("Checking memory ..... \n", "bold green");
-		open FREE, "/usr/bin/free -t |" or die "There was a problem loading the free utility: $! \n";
+		open FREE, "$free -t |" or die "There was a problem loading the free utility: $! \n";
 		while (my $line = <FREE>) {
 			chomp($line);
 			given ($line) {
@@ -76,15 +153,15 @@ given ($action) {
 					if (($p > 5) and ($p <= 10)) {
 						print colored("Sending notice...\n", "bold yellow") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "bold yellow") if ($verbose);
-						&send_notice('memory');
+						&send_notice($action);
 					} elsif (($p > 1) and ($p <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "yellow") if ($verbose);
-						&send_warning('memory');
+						&send_warning($action);
 					} elsif ($p <= 1) {
 						print colored("Sending critical.... \n", "bold red") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "bold red") if ($verbose);
-						&send_critical('memory');
+						&send_critical($action);
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
 						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "green") if ($verbose);
@@ -215,6 +292,16 @@ sub send_warning {
 sub send_critical {
 	my $app = shift(@_);
 	&send_message(3, $app);
+
+	return 1;
+}
+
+sub get_binaries {
+	$free = `which free`;
+	chomp($free);
+
+	$df = `which df`;
+	chomp($df);
 
 	return 1;
 }
