@@ -1,11 +1,15 @@
 #!/usr/bin/perl -w
 
 use strict;
-use warnings;
+# this is disabled to give better cross-platform compatibility without excessive warnings from
+# the perl interpreter.  
+#use warnings;
 use feature qw( switch );
 #print "PERLVER: $] \n";
 use 5.010;
-no warnings "experimental::smartmatch";
+# perls prior to 5.18 don't consider the smartmatch feature "experimental, so it is a compile-time
+# error.  The only option seems to be disabling warnings.
+#no warnings "experimental::smartmatch";
 
 use Term::ANSIColor;
 use Data::Dumper;
