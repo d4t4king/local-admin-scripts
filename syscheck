@@ -53,11 +53,15 @@ given ($action) {
 		# check memory
 		# mail if meet threshold
 		print colored("Checking memory ..... \n", "bold green");
-		open FREE, "/usr/bin/free -ot |" or die "There was a problem loading the free utility: $! \n";
+		open FREE, "/usr/bin/free -t |" or die "There was a problem loading the free utility: $! \n";
 		while (my $line = <FREE>) {
 			chomp($line);
 			given ($line) {
 				when (/total\s+used\s+free\s+shared\s+buffers\s+cached/) {
+					# skip the header
+					next;
+				}
+				when (/total\s+used\s+free\s+shared\s+buff\/cache\s+available/) {
 					# skip the header
 					next;
 				}
@@ -75,7 +79,7 @@ given ($action) {
 						&send_critical('memory');
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
-						print colored(sprintf("%-3.2f%% free", $p)." \n", "green") if ($verbose);
+						print colored(sprintf("Mem: %-3.2f%% free", $p)." \n", "green") if ($verbose);
 					}
 				}
 				when (/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -92,7 +96,7 @@ given ($action) {
 						&send_critical('memory');
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
-						print colored(sprintf("%-3.2f%% free", $p)." \n", "green") if ($verbose);
+						print colored(sprintf("Swap: %-3.2f%% free", $p)." \n", "green") if ($verbose);
 					}
 				}
 				when (/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
@@ -109,7 +113,7 @@ given ($action) {
 						&send_critical('memory');
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
-						print colored(sprintf("%-3.2f%% free", $p)." \n", "green") if ($verbose);
+						print colored(sprintf("Total: %-3.2f%% free", $p)." \n", "green") if ($verbose);
 					}
 				}
 				default {
