@@ -68,7 +68,7 @@ given ($action) {
 					# skip the header
 					next;
 				}
-				when (/^(?:none|udev|(?:dev)?tmpfs)/) {
+				when (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root)/) {
 					# don't really care about tmp filesystems
 					next;
 				}
