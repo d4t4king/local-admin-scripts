@@ -310,13 +310,24 @@ sub send_message {
 		$msg->bye;
 	} else {
 		MIME::Lite->send('smtp', $CONFIG->{'smtp-server'});
-		my $msg = MIME::Lite->new(
-			'From'		=>	$CONFIG->{'from'},
-			'To'		=>	$CONFIG->{'to'},
-			'Cc'		=>	$CONFIG->{'cc'},
-			'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
-			'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
-		);
+		my $msg;
+
+		if ((!defined($CONFIG->{'cc'})) or ($CONFIG->{'cc'})) {
+			$msg = MIME::Lite->new(
+				'From'		=>	$CONFIG->{'from'},
+				'To'		=>	$CONFIG->{'to'},
+				'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
+				'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
+			);
+		} else {
+			$msg = MIME::Lite->new(
+				'From'		=>	$CONFIG->{'from'},
+				'To'		=>	$CONFIG->{'to'},
+				'Cc'		=>	$CONFIG->{'cc'},
+				'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
+				'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
+			);
+		}
 
 		$msg->send;
 	}
