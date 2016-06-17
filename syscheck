@@ -59,6 +59,11 @@ switch ($action) {
 		while (my $line = <DF>) {
 			chomp($line);
 			switch ($line) {
+				#Filesystem     1K-blocks    Used Available Use% Mounted on
+				case /Filesystem\s+1K-blocks\s+Used\s+Available\s+Use\%\s+Mounted\s+on/ {
+					# skip the header
+					next;
+				}
 				case (/Filesystem\s+/) {
 					# skip the header
 					next;
@@ -132,7 +137,7 @@ switch ($action) {
 		}
 		close DF or die "There was a problem closing the df utility: $! \n";
 	}
-	when (/memory/) {
+	case (/memory/) {
 		# check memory
 		# mail if meet threshold
 		print colored("Checking memory ..... ", "bold green");
@@ -144,11 +149,15 @@ switch ($action) {
 					# skip the headers
 					next;
 				}
-				case (/total\s+used\s+free\s+shared\s+buff\/cache\s+available/) {
+				case (/(?:\s|\t)+total(?:\s|\t)+used(?:\s|\t)+free(?:\s|\t)+shared(?:\s|\t)+buff\/cache(?:\s|\t)+available/) {
 					# skip the headers
 					next;
 				}
 				case (/\-\/\+ buffers\/cache\:\s+\d+\s+\d+/) {
+					# skip the headers
+					next;
+				}
+				case (/total/) {
 					# skip the headers
 					next;
 				}
