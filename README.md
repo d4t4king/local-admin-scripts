@@ -41,4 +41,27 @@ $ perl Makefile.PL
 $ make && sudo make install
 ```
 
-* requires `make` to be installed.
+\* requires `make` to be installed.
+
+## Usage:
+```
+Usage ./syscheck [-h|--help] [-v|--verbose] [-c|--config] <config file> action
+
+Where:
+
+-h|--help			Displays this useful message, then exits.
+-v|--verbose			Prints more verbose output.  Usually used for debugging.
+-c|--config			Specifies the config file to use.  Cannot operate without
+				a valid YAML config file.
+
+ACTIONS are as follows:
+
+memory				Check the memory and swap for usage data. Emails 
+				notification if/when threashold reached.  Thresholds 
+				specified in config file.
+mounts|fs|filesystems		Check the filesystems for usage data.  Emails
+				notification if/when threshold reached.  Thresholds
+				specified in config file.
+```
+
+
