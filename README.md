@@ -1,6 +1,6 @@
 # local-admin-scripts
 
-These scrtips require the perl modules below to be installed on you system:
+These scripts require the perl modules below to be installed on your system:
 * YAML
 * MIME::Lite
 * Switch
@@ -21,7 +21,7 @@ These scrtips require the perl modules below to be installed on you system:
 # apt-get install libyaml-perl libmime-lite-perl libswitch-perl -y
 ```
 
-### ....for most Red Hat-ish distributions (Red Hat, CentOS, etc.)
+### ....for most Red Hat-ish distributions (Red Hat (RHEL), Fedora, CentOS, etc.)
 ```
 $ sudo yum install perl-Switch perl-MIME-Lite perl-yaml
 ```
