@@ -16,17 +16,17 @@ These scripts require the perl modules below to be installed on your system:
 
 ## Install required perl modules
 
-### ...for most Debian-like distributions (Debian, Ubuntu, Kali, etc.)
+#### ...for most Debian-like distributions (Debian, Ubuntu, Kali, etc.)
 ```
-# apt-get install libyaml-perl libmime-lite-perl libswitch-perl -y
+$ sudo apt-get install libyaml-perl libmime-lite-perl libswitch-perl -y
 ```
 
-### ....for most Red Hat-ish distributions (Red Hat (RHEL), Fedora, CentOS, etc.)
+#### ....for most Red Hat-ish distributions (Red Hat (RHEL), Fedora, CentOS, etc.)
 ```
 $ sudo yum install perl-Switch perl-MIME-Lite perl-yaml
 ```
 
-### ....for Gentoo:
+#### ....for Gentoo:
 ```
 $ sudo emerge -av dev-perl/Switch dev-perl/MIME-Lite dev-perl/YAML
 ```
