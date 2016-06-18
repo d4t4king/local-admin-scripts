@@ -4,12 +4,17 @@ use strict;
 # this is disabled to give better cross-platform compatibility without excessive warnings from
 # the perl interpreter.  
 use warnings;
+use feature qw( switch );
+#print "PERLVER: $] \n";
+use 5.010;
+# perls prior to 5.18 don't consider the smartmatch feature "experimental, so it is a compile-time
+# error.  The only option seems to be disabling warnings.
+no warnings "experimental::smartmatch";
 
 use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long qw( :config no_ignore_case bundling );
 
-use Switch;
 use YAML qw( LoadFile );
 use MIME::Lite;
 
@@ -50,86 +55,81 @@ print Dumper($CONFIG) if (($verbose)  and ($verbose > 1));
 
 my $action = $ARGV[0];
 
-switch ($action) {
-	case (/(?:mounts|fs|filesystems)/) {
+given ($action) {
+	when (/(?:mounts|fs|filesystems)/) {
 		# check the mounts
 		# mail if meet threshold
 		print colored("Checking mounts .... ", "bold green");
 		open DF, "$df |" or die "There was a problem loading the df utility: $! \n";
 		while (my $line = <DF>) {
 			chomp($line);
-			switch ($line) {
-				#Filesystem     1K-blocks    Used Available Use% Mounted on
-				case /Filesystem\s+1K-blocks\s+Used\s+Available\s+Use\%\s+Mounted\s+on/ {
+			given ($line) {
+				when (/Filesystem\s+/) {
 					# skip the header
 					next;
 				}
-				case (/Filesystem\s+/) {
-					# skip the header
-					next;
-				}
-				case (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root)/) {
+				when (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root)/) {
 					# don't really care about tmp filesystems
 					next;
 				}
-				case (/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
+				when (/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 					my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
 					my $cp = ($av * 100) / $b;
 					print colored("Percnt Used: $p\%\tCalc Percnt Free: ".sprintf("%-3.2f%%", $cp)." \n", "bold cyan") if ($verbose);
 					if (($cp > 5) and ($cp < 10)) {
 						print colored("Sending notice... \n", "bold yellow") if ($verbose);
-						switch ($action) {
-							case (/(?:fs|filesystems)/) {
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
 							}
-							case (/(?:mounts)/) {
+							when (/(?:mounts)/) {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
 							}
-							else { die colored("Unrecognized action: $action \n", "bold red"); }
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						&send_notice($action);
 						print colored("notice. \n", "bold yellow");
 					} elsif (($cp > 1) and ($cp <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
-						switch ($action) {
-							case (/(?:fs|filesystems)/) {
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
 							}
-							case (/(?:mounts)/) {
+							when (/(?:mounts)/) {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
 							}
-							else { die colored("Unrecognized action: $action \n", "bold red"); }
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						&send_warning($action);
 						print colored("warning. \n", "yellow");
 					} elsif ($cp <= 1) {
 						print colored("Sending critical... \n", "bold red") if ($verbose);
-						switch ($action) {
-							case (/(?:fs|filesystems)/) {
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
 							}
-							case (/(?:mounts)/) {
+							when (/(?:mounts)/) {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
 							}
-							else { die colored("Unrecognized action: $action \n", "bold red"); }
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						&send_critical($action);
 						print colored("critical. \n", "bold red");
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
-						switch ($action) {
-							case (/(?:fs|filesystems)/) {
+						given ($action) {
+							when (/(?:fs|filesystems)/) {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
 							}
-							case (/(?:mounts)/) {
+							when (/(?:mounts)/) {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
 							}
-							else { die colored("Unrecognized action: $action \n", "bold red"); }
+							default { die colored("Unrecognized action: $action \n", "bold red"); }
 						}
 						print colored("good. \n", "bold green");
 					}
 				}
-				else {
+				default {
 					print "Line didn't match: \n";
 					print "$line \n";
 				}
@@ -137,31 +137,27 @@ switch ($action) {
 		}
 		close DF or die "There was a problem closing the df utility: $! \n";
 	}
-	case (/memory/) {
+	when (/memory/) {
 		# check memory
 		# mail if meet threshold
 		print colored("Checking memory ..... ", "bold green");
 		open FREE, "$free -t |" or die "There was a problem loading the free utility: $! \n";
 		while (my $line = <FREE>) {
 			chomp($line);
-			switch ($line) {
-				case (/total\s+used\s+free\s+shared\s+buffers\s+cached/) {
+			given ($line) {
+				when (/total\s+used\s+free\s+shared\s+buffers\s+cached/) {
 					# skip the headers
 					next;
 				}
-				case (/(?:\s|\t)+total(?:\s|\t)+used(?:\s|\t)+free(?:\s|\t)+shared(?:\s|\t)+buff\/cache(?:\s|\t)+available/) {
+				when (/total\s+used\s+free\s+shared\s+buff\/cache\s+available/) {
 					# skip the headers
 					next;
 				}
-				case (/\-\/\+ buffers\/cache\:\s+\d+\s+\d+/) {
+				when (/\-\/\+ buffers\/cache\:\s+\d+\s+\d+/) {
 					# skip the headers
 					next;
 				}
-				case (/total/) {
-					# skip the headers
-					next;
-				}
-				case (/Mem:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
+				when (/Mem:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
 					my $t = $1; my $u = $2; my $f = $3;
 					my $p = ($f * 100) / $t;
 					if (($p > 5) and ($p <= 10)) {
@@ -185,7 +181,7 @@ switch ($action) {
 						print colored("good. \n", "bold green");
 					}
 				}
-				case (/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
+				when (/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
 					my $t = $1; my $u = $2; my $f = $3;
 					next if ($t == 0);
 					my $p = ($f * 100) / $t;
@@ -210,7 +206,7 @@ switch ($action) {
 						print colored("good. \n", "bold green");
 					}
 				}
-				case (/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
+				when (/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
 					my $t = $1; my $u = $2; my $f = $3;
 					my $p = ($f * 100) / $t;
 					if (($p > 5) and ($p <= 10)) {
@@ -234,7 +230,7 @@ switch ($action) {
 						print colored("good. \n", "bold green");
 					}
 				}
-				else {
+				default {
 					# do nothing;
 					print "Line didn't match! \n" if ($verbose);
 					print "$line \n" if ($verbose);
@@ -314,24 +310,13 @@ sub send_message {
 		$msg->bye;
 	} else {
 		MIME::Lite->send('smtp', $CONFIG->{'smtp-server'});
-		my $msg;
-
-		if ((!defined($CONFIG->{'cc'})) or ($CONFIG->{'cc'})) {
-			$msg = MIME::Lite->new(
-				'From'		=>	$CONFIG->{'from'},
-				'To'		=>	$CONFIG->{'to'},
-				'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
-				'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
-			);
-		} else {
-			$msg = MIME::Lite->new(
-				'From'		=>	$CONFIG->{'from'},
-				'To'		=>	$CONFIG->{'to'},
-				'Cc'		=>	$CONFIG->{'cc'},
-				'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
-				'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
-			);
-		}
+		my $msg = MIME::Lite->new(
+			'From'		=>	$CONFIG->{'from'},
+			'To'		=>	$CONFIG->{'to'},
+			'Cc'		=>	$CONFIG->{'cc'},
+			'Subject'	=>	ucfirst($sev{$severity}).": ".ucfirst($app),
+			'Data'		=>	"Your system (".$CONFIG->{'hostname'}.") has reached $sev{$severity} status of $app\.\n",
+		);
 
 		$msg->send;
 	}
