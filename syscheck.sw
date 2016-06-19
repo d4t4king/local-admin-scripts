@@ -51,7 +51,7 @@ print Dumper($CONFIG) if (($verbose)  and ($verbose > 1));
 my $action = $ARGV[0];
 
 switch ($action) {
-	case qr/(?:mounts|fs|filesystems)/ {
+	case m/(?:mounts|fs|filesystems)/ {
 		# check the mounts
 		# mail if meet threshold
 		print colored("Checking mounts .... ", "bold green");
@@ -60,29 +60,29 @@ switch ($action) {
 			chomp($line);
 			switch ($line) {
 				#Filesystem     1K-blocks    Used Available Use% Mounted on
-				case qr/Filesystem\s+1K-blocks\s+Used\s+Available\s+Use\%\s+Mounted\s+on/ {
+				case m/Filesystem\s+1K-blocks\s+Used\s+Available\s+Use\%\s+Mounted\s+on/ {
 					# skip the header
 					next;
 				}
-				case qr/Filesystem\s+/ {
+				case m/Filesystem\s+/ {
 					# skip the header
 					next;
 				}
-				case qr/^\s*(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root)/ {
+				case m/^\s*(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root)/ {
 					# don't really care about tmp filesystems
 					next;
 				}
-				case qr/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/ {
+				case m/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/ {
 					my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
 					my $cp = ($av * 100) / $b;
 					print colored("Percnt Used: $p\%\tCalc Percnt Free: ".sprintf("%-3.2f%%", $cp)." \n", "bold cyan") if ($verbose);
 					if (($cp > 5) and ($cp < 10)) {
 						print colored("Sending notice... \n", "bold yellow") if ($verbose);
 						switch ($action) {
-							case qr/(?:fs|filesystems)/ {
+							case m/(?:fs|filesystems)/ {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
 							}
-							case qr/(?:mounts)/ {
+							case m/(?:mounts)/ {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
 							}
 							else { die colored("Unrecognized action: $action \n", "bold red"); }
@@ -92,10 +92,10 @@ switch ($action) {
 					} elsif (($cp > 1) and ($cp <= 5)) {
 						print colored("Sending warning... \n", "yellow") if ($verbose);
 						switch ($action) {
-							case qr/(?:fs|filesystems)/ {
+							case m/(?:fs|filesystems)/ {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
 							}
-							case qr/(?:mounts)/ {
+							case m/(?:mounts)/ {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
 							}
 							else { die colored("Unrecognized action: $action \n", "bold red"); }
@@ -105,10 +105,10 @@ switch ($action) {
 					} elsif ($cp <= 1) {
 						print colored("Sending critical... \n", "bold red") if ($verbose);
 						switch ($action) {
-							case qr/(?:fs|filesystems)/ {
+							case m/(?:fs|filesystems)/ {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
 							}
-							case qr/(?:mounts)/ {
+							case m/(?:mounts)/ {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
 							}
 							else { die colored("Unrecognized action: $action \n", "bold red"); }
@@ -118,10 +118,10 @@ switch ($action) {
 					} else {
 						print colored("Within operational parameters... \n", "green") if ($verbose);
 						switch ($action) {
-							case qr/(?:fs|filesystems)/ {
+							case m/(?:fs|filesystems)/ {
 								print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
 							}
-							case qr/(?:mounts)/ {
+							case m/(?:mounts)/ {
 								print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
 							}
 							else { die colored("Unrecognized action: $action \n", "bold red"); }
@@ -137,7 +137,7 @@ switch ($action) {
 		}
 		close DF or die "There was a problem closing the df utility: $! \n";
 	}
-	case qr/memory/ {
+	case m/memory/ {
 		# check memory
 		# mail if meet threshold
 		print colored("Checking memory ..... ", "bold green");
@@ -145,23 +145,23 @@ switch ($action) {
 		while (my $line = <FREE>) {
 			chomp($line);
 			switch ($line) {
-				case qr/total\s+used\s+free\s+shared\s+buffers\s+cached/ {
+				case m/total\s+used\s+free\s+shared\s+buffers\s+cached/ {
 					# skip the headers
 					next;
 				}
-				case qr/(?:\s|\t)+total(?:\s|\t)+used(?:\s|\t)+free(?:\s|\t)+shared(?:\s|\t)+buff\/cache(?:\s|\t)+available/ {
+				case m/(?:\s|\t)+total(?:\s|\t)+used(?:\s|\t)+free(?:\s|\t)+shared(?:\s|\t)+buff\/cache(?:\s|\t)+available/ {
 					# skip the headers
 					next;
 				}
-				case qr/\-\/\+ buffers\/cache\:\s+\d+\s+\d+/ {
+				case m/\-\/\+ buffers\/cache\:\s+\d+\s+\d+/ {
 					# skip the headers
 					next;
 				}
-				case qr/total/ {
+				case m/total/ {
 					# skip the headers
 					next;
 				}
-				case qr/Mem:\s+(\d+)\s+(\d+)\s+(\d+).*/ {
+				case m/Mem:\s+(\d+)\s+(\d+)\s+(\d+).*/ {
 					my $t = $1; my $u = $2; my $f = $3;
 					my $p = ($f * 100) / $t;
 					if (($p > 5) and ($p <= 10)) {
@@ -185,7 +185,7 @@ switch ($action) {
 						print colored("good. \n", "bold green");
 					}
 				}
-				case qr/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/ {
+				case m/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/ {
 					my $t = $1; my $u = $2; my $f = $3;
 					next if ($t == 0);
 					my $p = ($f * 100) / $t;
@@ -210,7 +210,7 @@ switch ($action) {
 						print colored("good. \n", "bold green");
 					}
 				}
-				case qr/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/ {
+				case m/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/ {
 					my $t = $1; my $u = $2; my $f = $3;
 					my $p = ($f * 100) / $t;
 					if (($p > 5) and ($p <= 10)) {
