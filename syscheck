@@ -416,7 +416,7 @@ sub check_temps {
 					$adapter = $1;
 					print "Adapter: $adapter \n";
 				}
-				when (/((?:temp|Core|Physical id)\s*\d\d?)\:/) {
+				when (/((?:temp|Core|Physical id|Exhaust)\s*\d\d?)\:/) {
 					$node = $1;
 					print "Node: $node \n";
 				}
