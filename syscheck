@@ -26,9 +26,9 @@ GetOptions(
 	'c|config=s'	=>	\$config,
 );
 
-our ($free, $df);
-our %from_bool	= ('true'=>1, 'false'=>0);
-our %to_bool	= (1=>'true', 0=>'false');
+my ($free, $df, $sensors);
+my %from_bool	= ('true'=>1, 'false'=>0);
+my %to_bool	= (1=>'true', 0=>'false');
 
 &get_binaries;
 
@@ -99,6 +99,10 @@ END
 	exit 1;			# exit "true" in the absence of a true boolean
 }
 
+sub ltrim { my $s = shift(@_); $s =~ s/^\s+//;       return $s; }
+sub rtrim { my $s = shift(@_); $s =~ s/\s+$//;       return $s; }
+sub  trim { my $s = shift(@_); $s =~ s/^\s+|\s+$//g; return $s; }
+
 sub get_config {
 	my $config_file = shift(@_);
 
@@ -135,7 +139,7 @@ sub send_message {
 
 		$msg->bye;
 	} else {
-		MIME::Lite->send('smtp', $CONFIG->{'smtp-server'});
+		MIME::Lite->send('smtp', $CONFIG->{'smtp-server'}, 'Debug'=>$from_bool{$CONFIG->{'smtp-debug'}});
 		my $msg = MIME::Lite->new(
 			'From'		=>	$CONFIG->{'from'},
 			'To'		=>	$CONFIG->{'to'},
@@ -175,8 +179,26 @@ sub get_binaries {
 	$free = `which free`;
 	chomp($free);
 
+	if ((!defined($free)) or ($free eq "")) {
+		warn colored("Unable to find the `free` utility! \n", "yellow");
+		return 0;
+	}
+
 	$df = `which df`;
 	chomp($df);
+
+	if ((!defined($df)) or ($df eq "")) {
+		warn colored("Unable to find the `df` utility! \n", "yellow");
+		return 0;
+	}
+
+	$sensors = `which sensors`;
+	chomp($sensors);
+
+	if ((!defined($sensors)) or ($sensors eq "")) {
+		warn colored("Unable to find the `sensors` binary! \n", "yellow");
+		return 0;
+	}
 
 	return 1;
 }
@@ -366,6 +388,50 @@ sub check_memory {
 		}
 	}
 	close FREE or die "There was a problem closing the free utility: $! \n";
+
+	return 1;
+}
+
+sub check_temps {
+
+	print colored("Checking temps....", "bold green");
+
+	my $sensor_str = `$sensors -u`;
+	chomp($sensor_str);
+
+	my @sections = split(/\n\n/m, $sensor_str);
+	#print Dumper(\@sections);
+	foreach my $sect ( @sections ) {
+		my @lines = split(/\n/m, $sect);
+		#print Dumper(\@lines);
+		foreach my $l ( @lines ) {
+			$l = &trim($l);
+			my ($circid,$adapter,$node,$sensor,$temp);
+			given ($l) {
+				when (/([a-z]+\-[a-z]+\-\d+)/) {
+					$circid = $1;
+					print "Circuit ID: $circid \n";
+				}
+				when (/Adapter: (.*)/) {
+					$adapter = $1;
+					print "Adapter: $adapter \n";
+				}
+				when (/((?:temp|Core|Physical id)\s*\d\d?)\:/) {
+					$node = $1;
+					print "Node: $node \n";
+				}
+				when (/(temp\d+\_(?:input|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
+					$sensor = $1; $temp = $2;
+					print "Sensor: $sensor \n";
+					print "Temp: $temp \n";
+				}
+				default {
+					# if we get here, there is something wrong or unexpected.
+					die colored("Unrecognized section line: |$l| \n", "bold red");
+				}
+			}
+		}
+	}
 
 	return 1;
 }
