@@ -415,34 +415,84 @@ sub check_temps {
 	foreach my $sect ( @sections ) {
 		my @lines = split(/\n/m, $sect);
 		#print Dumper(\@lines);
+		my ($circid,$adapter,$node,$sensor,$temp);
+		my $sensor_obj = LASObjects::Sensor->new();
 		foreach my $l ( @lines ) {
 			$l = &trim($l);
-			my ($circid,$adapter,$node,$sensor,$temp);
 			given ($l) {
 				when (/([a-z]+\-[a-z]+\-\d+)/) {
 					$circid = $1;
 					print "Circuit ID: $circid \n" if ($verbose);
+					if ((defined($circid)) and ($circid ne "")) {
+						$sensor_obj->{'bus'} = $circid;
+					} else {
+						warn colored("Matched circuit, but didn't get bus ID! \n", "yellow");
+					}
 				}
 				when (/Adapter: (.*)/) {
 					$adapter = $1;
 					print "Adapter: $adapter \n" if ($verbose);
+					if ((defined($adapter)) and ($adapter ne "")) {
+						$sensor_obj->{'adapter'} = $adapter;
+					} else {
+						warn colored("Matched adapter line, but didn't get adapter! \n", "yellow");
+					}
 				}
 				when (/((?:temp|Core|Physical id|Exhaust)\s*\d\d?)\:/) {
 					$node = $1;
 					print "Node: $node \n" if ($verbose);
+					if ((defined($node)) and ($node ne '')) {
+						$sensor_obj->{'node'} = $node;
+					} else {
+						warn colored("Matched node line, but didn't get node! \n", "yellow");
+					}
 				}
 				when (/(temp\d+\_(?:input|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
 					$sensor = $1; $temp = $2;
 					print "Sensor: $sensor \n" if ($verbose);
 					print "Temp: $temp \n" if ($verbose);
+					if (((defined($sensor)) and ($sensor ne "")) and 
+						((defined($temp)) and ($temp ne ''))) {
+						given ($sensor) {
+							when (/(temp\d+)\_input/) {
+								my $s = $1;
+								$sensor_obj->{'sensor'} = $s;
+								$sensor_obj->{'input_temp'} = $temp;
+							}
+							when (/(temp\d+)\_max/) {
+								my $s = $1;
+								$sensor_obj->{'sensor'} = $s unless((defined($sensor_obj->{'sensor'})) and ($sensor_obj->{'sensor'} eq $s));
+								$sensor_obj->{'max_temp'} = $temp;
+							}
+							when (/(temp\d+)\_crit\_alarm/) {
+								my $s = $1;
+								$sensor_obj->{'sensor'} = $s unless((defined($sensor_obj->{'sensor'})) and ($sensor_obj->{'sensor'} eq $s));
+								$sensor_obj->{'crit_alarm'} = $temp;
+							}
+							when (/(temp\d+)\_crit$/) {
+								my $s = $1;
+								$sensor_obj->{'sensor'} = $s unless((defined($sensor_obj->{'sensor'})) and ($sensor_obj->{'sensor'} eq $s));
+								$sensor_obj->{'crit_temp'} = $temp;
+							}
+							default {
+								print "S: $sensor\t\tT: $temp \n";
+							}
+						}
+					} else {
+						warn colored("Matched sensor line, but didn't get sensor or temp! \n", "yellow");
+					}
 				}
 				default {
 					# if we get here, there is something wrong or unexpected.
 					die colored("Unrecognized section line: |$l| \n", "bold red");
 				}
 			}
-			my $sensor_obj = LASObjects::Sensor->new($circid,$adapter,$node,$sensor,$temp);
 		}
+		#my $sensor_obj = LASObjects::Sensor->new($circid,$adapter,$node,$sensor,$temp);
+		$sensor_obj->{'crit_max'} = $sensor_obj->{'max_temp'} unless ($sensor_obj->{'crit_max'} != 0);
+		$sensor_obj->{'emerg_temp'} = $sensor_obj->{'crit_temp'} unless ((defined($sensor_obj->{'emerg_temp'})) and ($sensor_obj->{'emerg_temp'} != 0));
+		$sensor_obj->{'emerg_max'} = $sensor_obj->{'crit_max'} unless ((defined($sensor_obj->{'emerg_max'})) and ($sensor_obj->{'emerg_max'} != 0));
+		print Dumper($sensor_obj);
 	}
 
 	return 1;
