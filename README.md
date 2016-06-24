@@ -4,6 +4,9 @@ These scripts require the perl modules below to be installed on your system:
 * YAML
 * MIME::Lite
 * Switch
+* Digest::SHA
+* (Net::SMTPS)***
+* (Net::SMTP_Auth)***
 * Email::Send::SMTP::Gmail *
 * Term::ANSIColor **
 * Data::Dumper **
@@ -12,7 +15,9 @@ These scripts require the perl modules below to be installed on your system:
 
 \* This module will likely need to be installed manually.  Instructions below.
 
-** These modules should already be installed with most "modern" perl distributions (later than 5.10).
+\*\* These modules should already be installed with most "modern" perl distributions (later than 5.10).
+
+\*\*\* These module may be required, depending on the version of Email::Send::SMTP::Gmail you download.  If you follow the instructions here, they won't (shouldn't) be needed.  However, it appears that there is a newer version on metacpan that requires these modules.  If you choose to use that version, you will probably need to install these modules, as well.
 
 ## Install required perl modules
 

@@ -18,6 +18,8 @@ use Getopt::Long qw( :config no_ignore_case bundling );
 use YAML qw( LoadFile );
 use MIME::Lite;
 
+use LASObjects::Sensor;
+
 my ($help,$verbose,$config);
 $verbose = 0;
 GetOptions(
@@ -29,6 +31,15 @@ GetOptions(
 my ($free, $df, $sensors);
 my %from_bool	= ('true'=>1, 'false'=>0);
 my %to_bool	= (1=>'true', 0=>'false');
+my %Sensor = (
+	'id'		=>	'',
+	'bus'		=>	'',
+	'adapter'	=>	'',
+	'node'		=>	'',
+	'sensor'	=>	'',
+	'temp'		=>	'',
+);
+my %HashOfSensors;
 
 &get_binaries;
 
@@ -410,26 +421,27 @@ sub check_temps {
 			given ($l) {
 				when (/([a-z]+\-[a-z]+\-\d+)/) {
 					$circid = $1;
-					print "Circuit ID: $circid \n";
+					print "Circuit ID: $circid \n" if ($verbose);
 				}
 				when (/Adapter: (.*)/) {
 					$adapter = $1;
-					print "Adapter: $adapter \n";
+					print "Adapter: $adapter \n" if ($verbose);
 				}
 				when (/((?:temp|Core|Physical id|Exhaust)\s*\d\d?)\:/) {
 					$node = $1;
-					print "Node: $node \n";
+					print "Node: $node \n" if ($verbose);
 				}
 				when (/(temp\d+\_(?:input|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
 					$sensor = $1; $temp = $2;
-					print "Sensor: $sensor \n";
-					print "Temp: $temp \n";
+					print "Sensor: $sensor \n" if ($verbose);
+					print "Temp: $temp \n" if ($verbose);
 				}
 				default {
 					# if we get here, there is something wrong or unexpected.
 					die colored("Unrecognized section line: |$l| \n", "bold red");
 				}
 			}
+			my $sensor_obj = LASObjects::Sensor->new($circid,$adapter,$node,$sensor,$temp);
 		}
 	}
 
