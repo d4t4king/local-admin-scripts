@@ -98,7 +98,7 @@ sub sensor_parse {
 							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_hyst'} = $temp;
 						}
-						when (/(temp\d+)\_crit$/) {
+						when (/(temp\d+)\_crit/) {
 							my $s = $1;
 							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_temp'} = $temp;
@@ -108,7 +108,7 @@ sub sensor_parse {
 							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'emerg_hyst'} = $temp;
 						}
-						when (/(temp\d+)\_emergency$/) {
+						when (/(temp\d+)\_emergency/) {
 							my $s = $1;
 							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'emerg_temp'} = $temp;

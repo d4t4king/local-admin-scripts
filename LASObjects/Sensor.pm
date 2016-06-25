@@ -3,6 +3,11 @@
 package LASObjects::Sensor;
 use base ("LASObjects");
 
+require Exporter;
+our @EXPORT		= qw( new high_temp );
+our @EXPORT_OK	= qw( set_id );
+our $VERSION	= '0.0.1';
+
 use strict;
 use warnings;
 
@@ -79,10 +84,10 @@ sub set_id {
 sub high_temp {
 	my $self = shift(@_);
 	if (defined($self->{'input_temp'})) {
-		if (defined($self->{'max_temp'})) {
-			print STDERR "Max: $self->{'max_temp'} \n";
-			print STDERR "Input: $self->{'input_temp'} \n";
-			print STDERR "Threashold: ".($self->{'max_temp'} - 5)." \n";
+		if ((defined($self->{'max_temp'})) and ($self->{'max_temp'} != 0)) {
+			#print STDERR "Max: $self->{'max_temp'} \n";
+			#print STDERR "Input: $self->{'input_temp'} \n";
+			#print STDERR "Threshold: ".($self->{'max_temp'} - 5)." \n";
 			if ($self->{'input_temp'} >= ($self->{'max_temp'} - 5)) {
 				return 1;		# true
 			} else {

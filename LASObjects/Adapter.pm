@@ -3,11 +3,18 @@
 package LASObjects::Adapter;
 use base ("LASObjects");
 
+require Exporter;
+
+our @EXPORT		= qw( new bus adapter sensors );
+our @EXPORT_OK	= qw( );
+our $VERSION	= '0.0.1';
+
 use strict;
 use warnings;
 
 use Data::Dumper;
 use Term::ANSIColor;
+
 
 sub new {
 	my $class = shift;
