@@ -415,6 +415,7 @@ sub check_temps {
 
 	foreach my $sect ( @sections ) {
 		my $sobj = LASObjects->sensor_parse($sect);
+		print colored(Dumper($sobj), "bold green");
 	}
 
 	return 1;

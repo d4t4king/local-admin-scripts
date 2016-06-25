@@ -30,11 +30,12 @@ sub sensor_parse {
 	my @lines = split(/\n/m, $sensor_data);
 	#print Dumper(\@lines);
 
+	my ($bus,$adapter,$node);
 	my $adpt = LASObjects::Adapter->new;
 	foreach my $l ( @lines ) {
 		#$l = &trim($l);
 		# initialize the variables for each sensor object
-		my ($bus,$adapter,$node,$sensor,$temp);
+		my ($sensor,$temp);
 		given ($l) {
 			when (/([a-z]+\-[a-z]+\-\d+)/) {
 				$bus = $1;
@@ -79,30 +80,38 @@ sub sensor_parse {
 					given ($sensor) {
 						when (/(temp\d+)\_input/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'input_temp'} = $temp;
 						}
 						when (/(temp\d+)\_max/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'max_temp'} = $temp;
 						}
 						when (/(temp\d+)\_crit\_alarm/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_alarm'} = $temp;
 						}
 						when (/(temp\d+)\_crit\_hyst/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_hyst'} = $temp;
 						}
 						when (/(temp\d+)\_crit$/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_temp'} = $temp;
 						}
 						when (/(temp\d+)\_emergency\_hyst/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'emerg_hyst'} = $temp;
 						}
 						when (/(temp\d+)\_emergency$/) {
 							my $s = $1;
+							if ($node =~ /Core \d/) { $s = "$node"; }
+							$adpt->{'sensors'}{$s}->{'emerg_temp'} = $temp;
 						}
 						default {
 							print "S: $sensor\t\tT: $temp \n";
@@ -124,7 +133,7 @@ sub sensor_parse {
 	#$sensor_obj->{'emerg_max'} = $sensor_obj->{'crit_max'} unless ((defined($sensor_obj->{'emerg_max'})) and ($sensor_obj->{'emerg_max'} != 0));
 	print Dumper($adpt);
 
-	return 1;
+	return $adpt;
 }
 
 1;
