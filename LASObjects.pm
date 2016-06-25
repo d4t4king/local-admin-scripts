@@ -131,7 +131,7 @@ sub sensor_parse {
 	#$sensor_obj->{'crit_max'} = $sensor_obj->{'max_temp'} unless ($sensor_obj->{'crit_max'} != 0);
 	#$sensor_obj->{'emerg_temp'} = $sensor_obj->{'crit_temp'} unless ((defined($sensor_obj->{'emerg_temp'})) and ($sensor_obj->{'emerg_temp'} != 0));
 	#$sensor_obj->{'emerg_max'} = $sensor_obj->{'crit_max'} unless ((defined($sensor_obj->{'emerg_max'})) and ($sensor_obj->{'emerg_max'} != 0));
-	print Dumper($adpt);
+	#print Dumper($adpt);
 
 	return $adpt;
 }

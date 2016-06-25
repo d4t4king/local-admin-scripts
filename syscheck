@@ -407,16 +407,32 @@ sub check_temps {
 
 	print colored("Checking temps....", "bold green");
 
+	### TO DO:  Clean this up.  Use regex or grep to filter out available
+	### sensor buses, then call each sensor bus individually.
 	my $sensor_str = `$sensors -u`;
 	chomp($sensor_str);
 
 	my @sections = split(/\n\n/m, $sensor_str);
 	#print Dumper(\@sections);
 
+	my @objs;
 	foreach my $sect ( @sections ) {
 		my $sobj = LASObjects->sensor_parse($sect);
-		print colored(Dumper($sobj), "bold green");
+		print colored(Dumper($sobj), "bold green") if ($verbose);
+		push @objs, $sobj;
+		#if ($sobj->high_temp) {
+		#	print colored("$sobj->{'name'} has high temp! \n", "bold yellow");
+		#} else { print colored("good. \n", "bold green"); }
 	}
 
-	return 1;
+	foreach my $o ( @objs ) {
+		print "$o->{'adapter'}\: \n";
+		foreach my $n ( keys %{$o->{'sensors'}} ) {
+			print "N: $n \n" if ($verbose);
+			if ($o->{'sensors'}{$n}->high_temp) {
+				print colored("$n has high temp! \n", "yellow");
+			} else { print colored("good. \n", "bold green"); }
+		}
+	}
+	#return 1;
 }

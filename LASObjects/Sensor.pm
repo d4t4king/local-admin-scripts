@@ -76,4 +76,31 @@ sub set_id {
 	return 1;
 }
 
+sub high_temp {
+	my $self = shift(@_);
+	if (defined($self->{'input_temp'})) {
+		if (defined($self->{'max_temp'})) {
+			print STDERR "Max: $self->{'max_temp'} \n";
+			print STDERR "Input: $self->{'input_temp'} \n";
+			print STDERR "Threashold: ".($self->{'max_temp'} - 5)." \n";
+			if ($self->{'input_temp'} >= ($self->{'max_temp'} - 5)) {
+				return 1;		# true
+			} else {
+				return 0;		# false
+			}
+		} elsif (defined($self->{'crit_temp'})) {
+			if ($self->{'input_temp'} >= ($self->{'crit_temp'} - 5)) {
+				return 1;
+			} else {
+				return 0;
+			}
+		} else {
+			warn colored("High temp limit not set by sensor. \n", "yellow");
+			return -1;
+		}
+	} else {
+		die colored("Input temp not set by sensor. \n", "bold red");
+	}
+}
+
 1;
