@@ -19,6 +19,7 @@ use YAML qw( LoadFile );
 use MIME::Lite;
 
 use LASObjects;
+use LASObjects::Mount;
 
 my ($help,$verbose,$config);
 $verbose = 0;
@@ -68,7 +69,8 @@ my $action = $ARGV[0];
 
 given ($action) {
 	when (/(?:mounts|fs|filesystems)/) {
-		&check_mounts;
+		my $r = &check_mounts;
+		print "RTV: $r \n";
 	}
 	when (/memory/) {
 		&check_memory;
@@ -215,6 +217,7 @@ sub get_binaries {
 }
 
 sub check_mounts {
+	my $rtv = 0;
 	# check the mounts
 	# mail if meet threshold
 	print colored("Checking mounts .... ", "bold green");
@@ -232,60 +235,22 @@ sub check_mounts {
 			}
 			when (/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 				my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
-				my $cp = ($av * 100) / $b;
-				print colored("Percnt Used: $p\%\tCalc Percnt Free: ".sprintf("%-3.2f%%", $cp)." \n", "bold cyan") if ($verbose);
-				if (($cp > 5) and ($cp < 10)) {
-					print colored("Sending notice... \n", "bold yellow") if ($verbose);
-					given ($action) {
-						when (/(?:fs|filesystems)/) {
-							print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
-						}
-						when (/(?:mounts)/) {
-							print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold yellow") if ($verbose);
-						}
-						default { die colored("Unrecognized action: $action \n", "bold red"); }
-					}
-					&send_notice($action);
-					print colored("notice. \n", "bold yellow");
-				} elsif (($cp > 1) and ($cp <= 5)) {
-					print colored("Sending warning... \n", "yellow") if ($verbose);
-					given ($action) {
-						when (/(?:fs|filesystems)/) {
-							print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
-						}
-						when (/(?:mounts)/) {
-							print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "yellow") if ($verbose);
-						}
-						default { die colored("Unrecognized action: $action \n", "bold red"); }
-					}
+				my $mount = LASObjects::Mount->new($mnt, $fs);
+
+				#print Dumper($mount);
+				if ($mount->{'calc_percent_free'} < 10) {
 					&send_warning($action);
-					print colored("warning. \n", "yellow");
-				} elsif ($cp <= 1) {
-					print colored("Sending critical... \n", "bold red") if ($verbose);
-					given ($action) {
-						when (/(?:fs|filesystems)/) {
-							print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
-						}
-						when (/(?:mounts)/) {
-							print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "bold red") if ($verbose);
-						}
-						default { die colored("Unrecognized action: $action \n", "bold red"); }
-					}
-					&send_critical($action);
-					print colored("critical. \n", "bold red");
-				} else {
-					print colored("Within operational parameters... \n", "green") if ($verbose);
-					given ($action) {
-						when (/(?:fs|filesystems)/) {
-							print colored(sprintf("$fs: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
-						}
-						when (/(?:mounts)/) {
-							print colored(sprintf("$mnt: %-3.2f%% free", $cp)." \n", "green") if ($verbose);
-						}
-						default { die colored("Unrecognized action: $action \n", "bold red"); }
-					}
-					print colored("good. \n", "bold green");
-				}
+				} else { $rtv++; }
+			}
+			# SMB/Network shares
+			when (/(\/\/(?:\d{1,3}\.){3}\d{1,3}\/.*?\/?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
+				my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
+				my $mount = LASObjects::Mount->new($mnt, $fs);
+
+				#print Dumper($mount);
+				if ($mount->{'calc_percent_free'} < 10) {
+					&send_warning($action);
+				} else { $rtv++; }
 			}
 			default {
 				print "Line didn't match: \n";
@@ -295,7 +260,7 @@ sub check_mounts {
 	}
 	close DF or die "There was a problem closing the df utility: $! \n";
 
-	return 1;
+	return $rtv;
 }
 
 sub check_memory {
@@ -434,5 +399,6 @@ sub check_temps {
 			} else { print colored("good. \n", "bold green"); }
 		}
 	}
-	#return 1;
+
+	return 1;
 }

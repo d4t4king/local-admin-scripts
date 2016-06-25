@@ -136,4 +136,8 @@ sub sensor_parse {
 	return $adpt;
 }
 
+sub mount_parse {
+	# TBD
+}
+
 1;
