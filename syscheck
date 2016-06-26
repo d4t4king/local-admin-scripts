@@ -218,6 +218,7 @@ sub get_binaries {
 
 sub check_mounts {
 	my $rtv = 0;
+	my $total_mounts = 0;
 	# check the mounts
 	# mail if meet threshold
 	print colored("Checking mounts .... ", "bold green");
@@ -236,6 +237,7 @@ sub check_mounts {
 			when (/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 				my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
 				my $mount = LASObjects::Mount->new($mnt, $fs);
+				$total_mounts++;
 
 				#print Dumper($mount);
 				if ($mount->{'calc_percent_free'} < 10) {
@@ -246,6 +248,7 @@ sub check_mounts {
 			when (/(\/\/(?:\d{1,3}\.){3}\d{1,3}\/.*?\/?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 				my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
 				my $mount = LASObjects::Mount->new($mnt, $fs);
+				$total_mounts++;
 
 				#print Dumper($mount);
 				if ($mount->{'calc_percent_free'} < 10) {
