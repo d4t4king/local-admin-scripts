@@ -7,7 +7,7 @@ use warnings;
 
 require 5.010;
 use feature qw( switch );
-no warnings "experimental::smartmatch";
+#no warnings "experimental::smartmatch";
 
 use Data::Dumper;
 use Term::ANSIColor;
@@ -71,7 +71,12 @@ sub sensor_parse {
 				my $sens = LASObjects::Sensor->new($node,"");
 				$adpt->{'sensors'}{$node} = $sens;
 			}
-			when (/(temp\d+\_(?:input|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
+			when (/(Ch\.\s+\d+\s+DIMM\s+\d+)\:/) {
+				$node = $1; my $nodeid = $2;
+				my $sens = LASObjects::Sensor->new($node,"");
+				$adpt->{'sensors'}{$node} = $sens;
+			}
+			when (/(temp\d+\_(?:input|min|alarm|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
 				$sensor = $1; $temp = $2;
 				print "Sensor: $sensor \n" if ($verbose);
 				print "Temp: $temp \n" if ($verbose);
@@ -80,37 +85,47 @@ sub sensor_parse {
 					given ($sensor) {
 						when (/(temp\d+)\_input/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'input_temp'} = $temp;
+						}
+						when (/(temp\d+)\_alarm/) {
+							my $s = $1;
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
+							$adpt->{'sensors'}{$s}->{'alarm_temp'} = $temp;
+						}
+						when (/(temp\d+)\_min/) {
+							my $s = $1;
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
+							$adpt->{'sensors'}{$s}->{'min_temp'} = $temp;
 						}
 						when (/(temp\d+)\_max/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'max_temp'} = $temp;
 						}
 						when (/(temp\d+)\_crit\_alarm/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_alarm'} = $temp;
 						}
 						when (/(temp\d+)\_crit\_hyst/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_hyst'} = $temp;
 						}
 						when (/(temp\d+)\_crit/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'crit_temp'} = $temp;
 						}
 						when (/(temp\d+)\_emergency\_hyst/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'emerg_hyst'} = $temp;
 						}
 						when (/(temp\d+)\_emergency/) {
 							my $s = $1;
-							if ($node =~ /Core \d/) { $s = "$node"; }
+							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'emerg_temp'} = $temp;
 						}
 						default {

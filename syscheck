@@ -9,7 +9,7 @@ use feature qw( switch );
 use 5.010;
 # perls prior to 5.18 don't consider the smartmatch feature "experimental, so it is a compile-time
 # error.  The only option seems to be disabling warnings.
-no warnings "experimental::smartmatch";
+#no warnings "experimental::smartmatch";
 
 use Term::ANSIColor;
 use Data::Dumper;
