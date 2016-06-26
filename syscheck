@@ -253,10 +253,14 @@ sub check_mounts {
 
 				#print Dumper($mount);
 				if ($mount->{'calc_percent_free'} < 10) {
+					print colored("\n$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "yellow") if ($verbose);
 					&send_warning($action);
 					$mounts{"$fs\-$mnt"} += 2;
 					$rtv--;
-				} else { $rtv++; }
+				} else { 
+					$rtv++; 
+					print colored("$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "green") if ($verbose);
+				}
 			}
 			# SMB/Network shares
 			when (/(\/\/(?:\d{1,3}\.){3}\d{1,3}\/.*?\/?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
@@ -266,10 +270,14 @@ sub check_mounts {
 
 				#print Dumper($mount);
 				if ($mount->{'calc_percent_free'} < 10) {
+					print colored("\n$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "yellow") if ($verbose);
 					&send_warning($action);
 					$mounts{"$fs\-$mnt"} += 2;
 					$rtv--;
-				} else { $rtv++; }
+				} else { 
+					$rtv++; 
+					print colored("$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "green") if ($verbose);
+				}
 			}
 			default {
 				print "Line didn't match: \n";
