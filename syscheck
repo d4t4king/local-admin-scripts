@@ -6,10 +6,10 @@ use strict;
 use warnings;
 use feature qw( switch );
 #print "PERLVER: $] \n";
-use 5.010;
+use 5.010_001;
 # perls prior to 5.18 don't consider the smartmatch feature "experimental, so it is a compile-time
 # error.  The only option seems to be disabling warnings.
-#no warnings "experimental::smartmatch";
+no if $] ge '5.018', warnings => "experimental::smartmatch";
 
 use Term::ANSIColor;
 use Data::Dumper;

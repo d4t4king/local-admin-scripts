@@ -7,7 +7,7 @@ use warnings;
 
 require 5.010;
 use feature qw( switch );
-#no warnings "experimental::smartmatch";
+no if $] ge '5.018', warnings => "experimental::smartmatch";
 
 use Data::Dumper;
 use Term::ANSIColor;
