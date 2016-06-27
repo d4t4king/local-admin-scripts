@@ -158,9 +158,13 @@ sub send_message {
 		use Email::Send::SMTP::Gmail;
 
 		my $msg = Email::Send::SMTP::Gmail->new(
-			'-smtp'		=>	'gmail.com',
-			'-login'	=>	$CONFIG->{'authuser'},
-			'-pass'		=>	$CONFIG->{'authpass'},
+			'-login'			=>	$CONFIG->{'authuser'},
+			'-pass'				=>	$CONFIG->{'authpass'},
+			'-smtp'				=>	'smtp.gmail.com',
+			'-layer'			=>	'tls',
+			'ssl_verify_mode'	=>	'SSL_VERIFY_NONE',
+			'-ssl_verify_path'	=>	'/etc/ssl/certs/',
+			'-ssl_verify_file'	=>	'ca-bundle.crt',
 		);
 
 		$msg->send(
@@ -419,6 +423,8 @@ sub check_memory {
 sub check_temps {
 
 	my $sensors = &get_binary('sensors');
+
+	die colored("Unable to do any sensor checks.  lm_sensors doesn't appear to be installed. \n", "bold red") if ((!defined($sensors)) or ($sensors eq ""));
 
 	my $rtv = 0;
 	my $total_sensors = 0;
