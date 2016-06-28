@@ -97,7 +97,13 @@ given ($action) {
 		}
 	}
 	when (/temps/) {
-		&check_temps;
+		my ($rc,$temp_ref) = &check_temps;
+		if (!$rc) {
+			print colored("good. \n", "bold green");
+		} else {
+			print "RC: $rc \n";
+			print Dumper($temp_ref);
+		}
 	}
 	default {
 		die colored("Unrecognized action: $action \n", "bold red");
@@ -439,40 +445,45 @@ sub check_temps {
 	my @s_lines = `$sensors -u`;
 	my @adpts = grep { /[a-z]+\-[a-z]+\-\d+/ } @s_lines;
 	foreach (@adpts) { chomp(); }
-
-	print Dumper(\@adpts);
-
-	#my @sections = split(/\n\n/m, $sensor_str);
-	#print Dumper(\@sections);
+	#print Dumper(\@adpts);
 
 	my @objs;
 	foreach my $adpt ( @adpts ) {
 		#print "$adpt \n";
 		my $rsd = `$sensors -u $adpt`; 
 		my $o = LASObjects->sensor_parse($rsd);
-		print Dumper($o);
+		#print Dumper($o);
 		push @objs, $o;
 	}
 
-	print Dumper(\@objs);
-	#foreach my $sect ( @sections ) {
-	#	my $sobj = LASObjects->sensor_parse($sect);
-	#	print colored(Dumper($sobj), "bold green") if ($verbose);
-	#	push @objs, $sobj;
-		#if ($sobj->high_temp) {
-		#	print colored("$sobj->{'name'} has high temp! \n", "bold yellow");
-		#} else { print colored("good. \n", "bold green"); }
-	#}
-#
-	#foreach my $o ( @objs ) {
-	#	print "$o->{'adapter'}\: \n";
-	#	foreach my $n ( keys %{$o->{'sensors'}} ) {
-	#		print "N: $n \n" if ($verbose);
-	#		if ($o->{'sensors'}{$n}->high_temp) {
-	#			print colored("$n has high temp! \n", "yellow");
-	#		} else { print colored("good. \n", "bold green"); }
-	#	}
-	#}
-#
-	return 1;
+	#print Dumper(\@objs);
+
+	foreach my $o ( @objs ) {
+		#print colored("$o\: \n", "magenta");
+		#print colored(ref($o)."\n", "magenta");
+		#print Dumper($o);
+		foreach my $s ( keys %{$o->{'sensors'}} ) {
+			#print colored("\t$s\: \n", "bold yellow");
+			#print colored("\t|".ref($s)."| \n", "bold yellow");
+			#print "::".$o->{'sensors'}->{$s}->high_temp." \n";
+			#if ($o->{'sensors'}->$s->high_temp) { print colored("High temp on $o->{'sensors'}->$s->{'name'}! \n", "bold magenta"); }
+			#else { $sensors{$o->{'sensors'}->$s->{'name'}} = 'ok'; }
+			#print Dumper($s);
+			$total_sensors++;
+			print colored(Dumper($o->{'sensors'}->{$s}), "yellow") if (($verbose) and ($verbose > 1));;
+			if ($o->{'sensors'}->{$s}->high_temp) {
+				#print colored("High temp on $o->{'sensors'}->{$s}->{'name'}! \n", "bold magenta");
+				print colored("High temp on $o->{'sensors'}->{$s}->{'fully_qualified_name'}: ", "bold yellow");
+				print colored(sprintf("%-3.2f C \n", $o->{'sensors'}{$s}->{'input_temp'}), "bold red");
+				#$sensors{$s} = $o->{'sensors'}{$s}->{'input_temp'};
+				$sensors{$o->{'sensors'}{$s}->{'fully_qualified_name'}} = 1;
+			} else {
+				#$sensors{$s} = $o->{'sensors'}{$s}->{'input_temp'};
+				$sensors{$o->{'sensors'}{$s}->{'fully_qualified_name'}} = 0;
+			}
+		}
+	}
+
+	foreach my $s (keys %sensors) { $rtv++ if ($sensors{$s}); }
+	return $rtv, \%sensors;
 }

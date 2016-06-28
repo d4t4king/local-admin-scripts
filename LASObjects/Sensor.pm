@@ -19,17 +19,19 @@ sub new {
 	my $class = shift;
 
 	my $self = {
-		'name'			=>	shift,
-		'input_temp'	=>	shift,
-		'min_temp'		=>	0,
-		'alarm_temp'	=>	0,
-		'max_temp'		=>	0,
-		'crit_temp'		=>	0,
-		'crit_alarm'	=>	0,
-		'crit_max'		=>	0,
-		'crit_hyst'		=>	0,
-		'emerg_max'		=>	0,
-		'emerg_hyst'	=>	0
+		'name'					=>	shift,
+		'input_temp'			=>	shift,
+		'min_temp'				=>	0,
+		'alarm_temp'			=>	0,
+		'max_temp'				=>	0,
+		'max_hyst'				=>	0,
+		'crit_temp'				=>	0,
+		'crit_alarm'			=>	0,
+		'crit_max'				=>	0,
+		'crit_hyst'				=>	0,
+		'emerg_max'				=>	0,
+		'emerg_hyst'			=>	0,
+		'fully_qualified_name'	=>	''
 	};
 
 	bless $self, $class;
