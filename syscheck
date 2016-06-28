@@ -18,9 +18,8 @@ use Getopt::Long qw( :config no_ignore_case bundling );
 use YAML qw( LoadFile );
 use MIME::Lite;
 
-use lib '.';
+use lib '/root/local-admin-scripts';
 use LASObjects;
-use lib 'LASObjects';
 use LASObjects::Mount;
 
 my ($help,$verbose,$config);
