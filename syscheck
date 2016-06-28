@@ -434,31 +434,45 @@ sub check_temps {
 
 	### TO DO:  Clean this up.  Use regex or grep to filter out available
 	### sensor buses, then call each sensor bus individually.
-	my $sensor_str = `$sensors -u`;
-	chomp($sensor_str);
+	#my $sensor_str = `$sensors -u`;
+	#chomp($sensor_str);
+	my @s_lines = `$sensors -u`;
+	my @adpts = grep { /[a-z]+\-[a-z]+\-\d+/ } @s_lines;
+	foreach (@adpts) { chomp(); }
 
-	my @sections = split(/\n\n/m, $sensor_str);
+	print Dumper(\@adpts);
+
+	#my @sections = split(/\n\n/m, $sensor_str);
 	#print Dumper(\@sections);
 
 	my @objs;
-	foreach my $sect ( @sections ) {
-		my $sobj = LASObjects->sensor_parse($sect);
-		print colored(Dumper($sobj), "bold green") if ($verbose);
-		push @objs, $sobj;
+	foreach my $adpt ( @adpts ) {
+		#print "$adpt \n";
+		my $rsd = `$sensors -u $adpt`; 
+		my $o = LASObjects->sensor_parse($rsd);
+		print Dumper($o);
+		push @objs, $o;
+	}
+
+	print Dumper(\@objs);
+	#foreach my $sect ( @sections ) {
+	#	my $sobj = LASObjects->sensor_parse($sect);
+	#	print colored(Dumper($sobj), "bold green") if ($verbose);
+	#	push @objs, $sobj;
 		#if ($sobj->high_temp) {
 		#	print colored("$sobj->{'name'} has high temp! \n", "bold yellow");
 		#} else { print colored("good. \n", "bold green"); }
-	}
-
-	foreach my $o ( @objs ) {
-		print "$o->{'adapter'}\: \n";
-		foreach my $n ( keys %{$o->{'sensors'}} ) {
-			print "N: $n \n" if ($verbose);
-			if ($o->{'sensors'}{$n}->high_temp) {
-				print colored("$n has high temp! \n", "yellow");
-			} else { print colored("good. \n", "bold green"); }
-		}
-	}
-
+	#}
+#
+	#foreach my $o ( @objs ) {
+	#	print "$o->{'adapter'}\: \n";
+	#	foreach my $n ( keys %{$o->{'sensors'}} ) {
+	#		print "N: $n \n" if ($verbose);
+	#		if ($o->{'sensors'}{$n}->high_temp) {
+	#			print colored("$n has high temp! \n", "yellow");
+	#		} else { print colored("good. \n", "bold green"); }
+	#	}
+	#}
+#
 	return 1;
 }
