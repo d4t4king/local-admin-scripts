@@ -21,6 +21,7 @@ use MIME::Lite;
 use lib '/root/local-admin-scripts';
 use LASObjects;
 use LASObjects::Mount;
+use LASObjects::SMARTDisk;
 
 my ($help,$verbose,$config);
 $verbose = 0;
@@ -33,15 +34,6 @@ GetOptions(
 my ($free, $df, $sensors);
 my %from_bool	= ('true'=>1, 'false'=>0);
 my %to_bool	= (1=>'true', 0=>'false');
-my %Sensor = (
-	'id'		=>	'',
-	'bus'		=>	'',
-	'adapter'	=>	'',
-	'node'		=>	'',
-	'sensor'	=>	'',
-	'temp'		=>	'',
-);
-my %HashOfSensors;
 
 &usage if ($help);
 
@@ -104,6 +96,15 @@ given ($action) {
 		} else {
 			print "RC: $rc \n";
 			print Dumper($temp_ref);
+		}
+	}
+	when (/smart/i) {
+		my ($rc, $smart_ref) = &check_smart;
+		if (!$rc) {
+			print colored("good. \n", "bold green");
+		} else {
+			print "RC: $rc \n";
+			print Dumper($smart_ref);
 		}
 	}
 	default {
@@ -487,4 +488,12 @@ sub check_temps {
 
 	foreach my $s (keys %sensors) { $rtv++ if ($sensors{$s}); }
 	return $rtv, \%sensors;
+}
+
+sub check_smart {
+	my $smart = LASObjects::SMARTDisk->new();
+
+	print colored("Checking SMART.... ", "bold green");
+	#print colored(Dumper($smart)." \n", "magenta");
+	return 0, $smart;
 }
