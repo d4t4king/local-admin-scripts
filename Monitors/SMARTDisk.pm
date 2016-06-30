@@ -82,6 +82,7 @@ sub update_data {
 	foreach my $line ( split(/\n+/, $out) ) {
 		given ($line) {
 			when (/\=\=\=\s+START\s+OF\s+READ\s+SMART\s+DATA\s+SECTION\s+\=\=\=/) { last; }
+			when (/Device\s+type\:\s+(.*)/)						{ $self->{'devices'}->{$device}->{'info'}{'device_type'} = $1; }
 			when (/Device\s+Model\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'model'} = $1; }
 			when (/Serial\s+Number\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'serial_number'} = $1; }
 			when (/Firmware\s+Version\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'firmware_ver'} = $1; }
@@ -102,10 +103,14 @@ sub update_data {
 			}
 			when (/ATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'ata_ver'} = $1; }
 			when (/SATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'sata_ver'} = $1; }
+			when (/Revision\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'revision'} = $1; }
+			when (/Logical\s+block\s+size\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'logical_block_size'} = $1; }
 			when (/SMART\s+support\s+is\:\s+(.*)/)				{ 
 				my $d = $1; 
 				#print colored("D: $d \n", "bold cyan");
 				given ($d) {
+					when (/^Unavailable\s+\-\s+.*/)	{ 
+						$self->{'devices'}->{$device}->{'info'}{'smart_available'} = $from_bool{'false'}; }
 					when (/^Available\s+\-\s+.*/)	{ 
 						$self->{'devices'}->{$device}->{'info'}{'smart_available'} = $from_bool{'true'}; }
 					when (/^Enabled.*/) 			{ 
@@ -117,6 +122,8 @@ sub update_data {
 			when (/Local\s+Time\s+is\:/)						{ next; }
 			when (/\=\=\=\s+START.*/)							{ next; }
 			when (/Copyright \(C\).*/)							{ next; }
+			when (/Vendor\:\s+VMware/)							{ next; }
+			when (/Product\:\s+Virtual\s*disk/)					{ next; }
 			default { die colored("Line didn't match: $line \n", "bold red"); }
 		}
 	}
