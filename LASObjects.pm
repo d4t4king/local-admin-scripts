@@ -15,6 +15,9 @@ use Term::ANSIColor;
 use LASObjects::Adapter;
 use LASObjects::Sensor;
 
+our %from_bool	= ( 'true'=>1, 'false'=>0 );
+our %to_bool	= ( 1=>'true', 0=>'false' );
+
 sub ltrim { my $s = shift(@_); $s =~ s/^\s+//;       return $s; }
 sub rtrim { my $s = shift(@_); $s =~ s/\s+$//;       return $s; }
 sub  trim { my $s = shift(@_); $s =~ s/^\s+|\s+$//g; return $s; }
