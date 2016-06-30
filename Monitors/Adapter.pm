@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
-package LASObjects::Adapter;
-use base ("LASObjects");
+package Monitors::Adapter;
+use base ("Monitors");
 
 require Exporter;
 

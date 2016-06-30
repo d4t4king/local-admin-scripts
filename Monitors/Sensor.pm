@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-package LASObjects::Sensor;
-use base ("LASObjects");
+package Monitors::Sensor;
+use base ("Monitors");
 
 require Exporter;
 our @EXPORT		= qw( new high_temp );

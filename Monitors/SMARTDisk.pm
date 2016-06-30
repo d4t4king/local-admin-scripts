@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package LASObjects::SMARTDisk;
+package Monitors::SMARTDisk;
 
 use strict;
 use warnings;
@@ -13,16 +13,16 @@ use Term::ANSIColor;
 use Data::Dumper;
 
 use lib '/root/local-admin-scripts';
-use LASObjects;
+use Monitors;
 
 {
-	$LASObjects::SMARTDisk::VERSION = '0.1';
+	$Monitors::SMARTDisk::VERSION = '0.1';
 }
 
 our %from_bool  = ( 'true'=>1, 'false'=>0 );
 our %to_bool    = ( 1=>'true', 0=>'false' );
 
-chomp( our $smartctl = LASObjects->get_binary('smartctl') );
+chomp( our $smartctl = Monitors->get_binary('smartctl') );
 
 sub new {
 	my ($class,@devices) = @_;
@@ -30,7 +30,7 @@ sub new {
 
 	if (!@devices) {
 		# try to "glean" the info from the mount command
-		my $mount = LASObjects->get_binary('mount');
+		my $mount = Monitors->get_binary('mount');
 		my @mounts = qx($mount);
 		#print Dumper(\@mounts);
 

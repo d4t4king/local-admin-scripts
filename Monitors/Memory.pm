@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package LASObjects::Memory;
+package Monitors::Memory;
 
 our @ISA		= qw( Exporter );
 our @EXPORT		= qw( );

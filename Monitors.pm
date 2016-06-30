@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package LASObjects;
+package Monitors;
 
 use strict;
 use warnings;
@@ -12,8 +12,8 @@ no if $] ge '5.018', warnings => "experimental::smartmatch";
 use Data::Dumper;
 use Term::ANSIColor;
 
-use LASObjects::Adapter;
-use LASObjects::Sensor;
+use Monitors::Adapter;
+use Monitors::Sensor;
 
 our %from_bool	= ( 'true'=>1, 'false'=>0 );
 our %to_bool	= ( 1=>'true', 0=>'false' );
@@ -34,7 +34,7 @@ sub sensor_parse {
 	#print Dumper(\@lines);
 
 	my ($bus,$adapter,$node);
-	my $adpt = LASObjects::Adapter->new;
+	my $adpt = Monitors::Adapter->new;
 	foreach my $l ( @lines ) {
 		#$l = &trim($l);
 		# initialize the variables for each sensor object
@@ -61,22 +61,22 @@ sub sensor_parse {
 			# when we get this line, create a new sensor object and add it to the Adapter
 			when (/(temp(\d+))\:/) {
 				$node = $1; my $nodeid = $2;
-				my $sens = LASObjects::Sensor->new($node,"");
+				my $sens = Monitors::Sensor->new($node,"");
 				$adpt->{'sensors'}{$node} = $sens;
 			}
 			when (/(Core\s+(\d+))\:/) {
 				$node = $1; my $nodeid = $2;
-				my $sens = LASObjects::Sensor->new($node,"");
+				my $sens = Monitors::Sensor->new($node,"");
 				$adpt->{'sensors'}{$node} = $sens;
 			}
 			when (/(Physical\s+id\s*(\d+))\:/) {
 				$node = $1; my $nodeid = $2;
-				my $sens = LASObjects::Sensor->new($node,"");
+				my $sens = Monitors::Sensor->new($node,"");
 				$adpt->{'sensors'}{$node} = $sens;
 			}
 			when (/(Ch\.\s+\d+\s+DIMM\s+\d+)\:/) {
 				$node = $1; my $nodeid = $2;
-				my $sens = LASObjects::Sensor->new($node,"");
+				my $sens = Monitors::Sensor->new($node,"");
 				$adpt->{'sensors'}{$node} = $sens;
 			}
 			when (/(temp\d+\_(?:input|min|alarm|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
@@ -151,7 +151,7 @@ sub sensor_parse {
 			}
 		}
 	}
-	#my $sensor_obj = LASObjects::Sensor->new($circid,$adapter,$node,$sensor,$temp);
+	#my $sensor_obj = Monitors::Sensor->new($circid,$adapter,$node,$sensor,$temp);
 	#$sensor_obj->{'crit_max'} = $sensor_obj->{'max_temp'} unless ($sensor_obj->{'crit_max'} != 0);
 	#$sensor_obj->{'emerg_temp'} = $sensor_obj->{'crit_temp'} unless ((defined($sensor_obj->{'emerg_temp'})) and ($sensor_obj->{'emerg_temp'} != 0));
 	#$sensor_obj->{'emerg_max'} = $sensor_obj->{'crit_max'} unless ((defined($sensor_obj->{'emerg_max'})) and ($sensor_obj->{'emerg_max'} != 0));

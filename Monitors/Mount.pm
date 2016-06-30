@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-package LASObjects::Mount;
-use base ('LASObjects');
+package Monitors::Mount;
+use base ('Monitors');
 
 our @ISA		= qw( Exporter );
 our @EXPORT		= qw( new );
@@ -15,7 +15,7 @@ use Data::Dumper;
 use Term::ANSIColor;
 
 use lib "/root/local-admin-scripts";
-use LASObjects;
+use Monitors;
 
 sub new {
 	my $class = shift(@_);
@@ -34,8 +34,8 @@ sub new {
 		'failed_reads'		=>	0,
 	};
 
-	my $df		= LASObjects->get_binary('df');
-	my $grep	= LASObjects->get_binary('grep');
+	my $df		= Monitors->get_binary('df');
+	my $grep	= Monitors->get_binary('grep');
 
 	my $disk = `$df | $grep "$self->{'device_node'}"`;
 	chomp($disk);
