@@ -14,6 +14,9 @@ use warnings;
 use Data::Dumper;
 use Term::ANSIColor;
 
+use lib "/root/local-admin-scripts";
+use LASObjects;
+
 sub new {
 	my $class = shift(@_);
 
@@ -31,8 +34,8 @@ sub new {
 		'failed_reads'		=>	0,
 	};
 
-	my $df		= &__get_binary__('df');
-	my $grep	= &__get_binary__('grep');
+	my $df		= LASObjects->get_binary('df');
+	my $grep	= LASObjects->get_binary('grep');
 
 	my $disk = `$df | $grep "$self->{'device_node'}"`;
 	chomp($disk);

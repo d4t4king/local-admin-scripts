@@ -157,8 +157,20 @@ sub sensor_parse {
 	return $adpt;
 }
 
-sub mount_parse {
-	# TBD
+sub get_binary {
+	my $rtv		= 1;
+	my $self	= shift(@_);
+	my $bin		= shift(@_);
+
+	my $bin_path = `which $bin`;
+	chomp($bin_path);
+
+	if ((!defined($bin_path)) or ($bin_path eq "")) {
+		warn colored("Unable to find the `$bin` utility! \n", "yellow");
+		return undef;
+	} else {
+		return $bin_path;
+	}
 }
 
 1;

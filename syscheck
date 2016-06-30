@@ -220,27 +220,27 @@ sub send_critical {
 	return 1;
 }
 
-sub get_binary {
-	my $bin = shift(@_);
-	my $rtv = 1;
-
-	my $bin_path = `which $bin`;
-	chomp($bin_path);
-
-	if ((!defined($bin_path)) or ($bin_path eq "")) {
-		warn colored("Unable to find the `$bin` utility! \n", "yellow");
-		return undef;
-	} else {
-		return $bin_path;
-	}
-}
+#sub get_binary {
+#	my $bin = shift(@_);
+#	my $rtv = 1;
+#
+#	my $bin_path = `which $bin`;
+#	chomp($bin_path);
+#
+#	if ((!defined($bin_path)) or ($bin_path eq "")) {
+#		warn colored("Unable to find the `$bin` utility! \n", "yellow");
+#		return undef;
+#	} else {
+#		return $bin_path;
+#	}
+#}
 
 sub check_mounts {
 	my $rtv = 0;
 	my $total_mounts = 0;
 	my %mounts;
 
-	my $df = &get_binary('df');
+	my $df = LASObjects->get_binary('df');
 	die colored("Unabled to get `df` binary! \n", "bold red") if ((!defined($df)) or ($df eq ""));
 
 	print colored("Checking mounts .... ", "bold green");
@@ -303,7 +303,7 @@ sub check_mounts {
 }
 
 sub check_memory {
-	my $free = &get_binary('free');
+	my $free = LASObjects->get_binary('free');
 	die colored("Unable to get `free` bindary! \n", "bold red") if ((!defined($free)) or ($free eq ""));
 
 	my $rtv = 0;
@@ -429,7 +429,7 @@ sub check_memory {
 
 sub check_temps {
 
-	my $sensors = &get_binary('sensors');
+	my $sensors = LASObjects->get_binary('sensors');
 
 	die colored("Unable to do any sensor checks.  lm_sensors doesn't appear to be installed. \n", "bold red") if ((!defined($sensors)) or ($sensors eq ""));
 
