@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 package Monitors::Memory;
+use base ("Monitors");
 
 our @ISA		= qw( Exporter );
 our @EXPORT		= qw( );

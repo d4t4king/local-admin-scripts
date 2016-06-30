@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 package Monitors::SMARTDisk;
+use base ("Monitors");
 
 use strict;
 use warnings;
