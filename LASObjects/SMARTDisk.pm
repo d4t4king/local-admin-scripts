@@ -51,13 +51,32 @@ sub new {
 	return $self;
 }
 
+sub has_errors {
+	my $self = shift(@_);
+
+	my $has_errors = $from_bool{'false'};
+
+	#print colored("|".ref($self->{'devices'})."| \n", "bold yellow on_blue");
+	foreach my $dev ( keys %{ $self->{'devices'} } ) {
+		my $smart_out	= $self->{'devices'}->{$dev}->{'raw_smart_data'};
+		my ($errors)	= $smart_out =~ /SMART\s+Error\s+Log\s+Version\:\s+[1-9](.*)SMART\s+Self-test\s+log/s;
+		$errors			= &trim($errors);
+		if ((defined($errors)) and ($errors !~ /No\s+Errors\s+Logged/)) { $has_errors = $from_bool{'true'}; }
+		else { $has_errors = $from_bool{'false'}; }
+		$self->{'devices'}->{$dev}->{'info'}{'has_errors'} = $has_errors;
+	}
+
+	return $has_errors;
+}
+
 sub update_data {
 	my $self	= shift(@_);
 	my $device	= shift(@_);
 
 	my $out = qx($smartctl -a $device) if ((defined($smartctl)) and ($smartctl ne ''));
 	chomp($out);
-	print colored("$device \n", "bold blue");
+	#print colored("$device \n", "bold blue");
+	$self->{'devices'}->{$device}->{'raw_smart_data'} = $out;
 
 	foreach my $line ( split(/\n+/, $out) ) {
 		given ($line) {
@@ -84,14 +103,12 @@ sub update_data {
 			when (/SATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'sata_ver'} = $1; }
 			when (/SMART\s+support\s+is\:\s+(.*)/)				{ 
 				my $d = $1; 
-				print colored("D: $d \n", "bold cyan");
+				#print colored("D: $d \n", "bold cyan");
 				given ($d) {
 					when (/^Available\s+\-\s+.*/)	{ 
 						$self->{'devices'}->{$device}->{'info'}{'smart_available'} = $from_bool{'true'}; }
-				#else { $self->{'devices'}->{$device}->{'info'}{'smart_available'} = $from_bool{'false'}; }
 					when (/^Enabled.*/) 			{ 
 						$self->{'devices'}->{$device}->{'info'}{'smart_enabled'} = $from_bool{'true'}; }
-				#else { $self->{'devices'}->{$device}->{'info'}{'smart_enabled'} = $from_bool{'false'}; }
 					default { next; }
 				}
 			}

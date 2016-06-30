@@ -96,12 +96,12 @@ given ($action) {
 	}
 	when (/smart/i) {
 		my ($rc, $smart_ref) = &check_smart;
-		if (!$rc) {
+		if ($rc) {
 			print colored("good. \n", "bold green");
 		} else {
 			print "RC: $rc \n";
-			print Dumper($smart_ref);
 		}
+		print Dumper($smart_ref);
 	}
 	default {
 		die colored("Unrecognized action: $action \n", "bold red");
@@ -490,6 +490,13 @@ sub check_smart {
 	my $smart = LASObjects::SMARTDisk->new();
 
 	print colored("Checking SMART.... ", "bold green");
-	print colored(Dumper($smart)." \n", "magenta");
-	return 0, $smart;
+	
+	#print colored(Dumper($smart)." \n", "magenta");
+
+	#$smart->has_errors;
+	if ($smart->has_errors) {
+		return 0, $smart;
+	} else {
+		return 1, $smart;
+	}
 }
