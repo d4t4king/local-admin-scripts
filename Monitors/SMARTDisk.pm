@@ -84,6 +84,7 @@ sub update_data {
 			when (/\=\=\=\s+START\s+OF\s+READ\s+SMART\s+DATA\s+SECTION\s+\=\=\=/) { last; }
 			when (/Device\s+type\:\s+(.*)/)						{ $self->{'devices'}->{$device}->{'info'}{'device_type'} = $1; }
 			when (/Device\s+Model\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'model'} = $1; }
+			when (/Model\s+Family\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'model_family'} = $1; }
 			when (/Serial\s+Number\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'serial_number'} = $1; }
 			when (/Firmware\s+Version\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'firmware_ver'} = $1; }
 			when (/LU\s+WWN\s+Device\s+Id\:\s+(.*)/)			{ $self->{'devices'}->{$device}->{'info'}{'lu_wnn_device_id'} = $1; }
@@ -101,8 +102,8 @@ sub update_data {
 					$self->{'devices'}->{$device}->{'info'}{'in_database'} = $from_bool{'false'}; }
 				else { $self->{'devices'}->{$device}->{'info'}{'in_database'} = $from_bool{'true'}; }
 			}
-			when (/ATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'ata_ver'} = $1; }
-			when (/SATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'sata_ver'} = $1; }
+			when (/^ATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'ata_ver'} = $1; }
+			when (/^SATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'sata_ver'} = $1; }
 			when (/Revision\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'revision'} = $1; }
 			when (/Logical\s+block\s+size\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'logical_block_size'} = $1; }
 			when (/SMART\s+support\s+is\:\s+(.*)/)				{ 
