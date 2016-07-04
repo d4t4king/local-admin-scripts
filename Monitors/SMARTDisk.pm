@@ -3,6 +3,15 @@
 package Monitors::SMARTDisk;
 use base ("Monitors");
 
+use Exporter;
+our @ISA		=	qw( Exporter );
+our @EXPORT		=	qw( new );
+our @EXPORT_OK	=	qw( );
+{
+	$Monitors::SMARTDisk::VERSION = '0.0.1';
+}
+#our $VERSION = '0.0.1';
+
 use strict;
 use warnings;
 
@@ -66,8 +75,22 @@ sub has_errors {
 		if ((defined($errors)) and ($errors !~ /No\s+Errors\s+Logged/)) { $has_errors = $from_bool{'true'}; }
 		else { $has_errors = $from_bool{'false'}; }
 		$self->{'devices'}->{$dev}->{'info'}{'has_errors'} = $has_errors;
+		
+		foreach my $attr ( @{ $self->{'devices'}->{$dev}->{'attributes'} } ) {
+			#print colored(Dumper($attr)."\n", "bold magenta");
+			if ($attr->{'id'} == 190) {
+				if ($attr->{'name'} eq 'Airflow_Temperature_Cel') {
+					if ($attr->{'raw_value'} > 50) {
+						$has_errors = $from_bool{'true'} if (!$has_errors);
+					}
+				} else {
+					warn colored("Attribute unexpected id/name: $attr->{'id'}/$attr->{'name'} \n", "yellow");
+				}
+			}
+		}
 	}
 
+		
 	return $has_errors;
 }
 
@@ -89,7 +112,7 @@ sub parse_attributes {
 		# at least the pertinent section(s)
 		#print colored(Dumper($lines)."\n", "bold cyan");
 		foreach my $line ( (split(/\n+/, $arg)) ) {
-			print colored("|$line| \n", "bold cyan");
+			#print colored("|$line| \n", "bold cyan");
 			given ($line) {
 				when (/SMART\s+Error\s+Log\s+Version\:\s+\d+/) { 			last; }
 				when (/\s*(\d+)\s+(.*?)\s+.*?\s+(\d{3})\s+(\d{3})\s+(\d{3}|\-{3})\s+(Pre-fail|Old_[Aa]ge)\s+(Always|Offline)\s+\-\s+(.*)/) {

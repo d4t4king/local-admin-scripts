@@ -6,7 +6,10 @@ use base ('Monitors');
 our @ISA		= qw( Exporter );
 our @EXPORT		= qw( new );
 our @EXPORT_OK	= qw( );
-our $VERSION	= '0.0.1';
+{
+	$Monitors::Mount::VERSION = '0.0.1';
+}
+#our $VERSION	= '0.0.1';
 
 use strict;
 use warnings;
