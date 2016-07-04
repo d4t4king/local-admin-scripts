@@ -15,6 +15,7 @@ use Data::Dumper;
 
 use lib '/root/local-admin-scripts';
 use Monitors;
+use Monitors::SMARTDisk::SMARTAttribute;
 
 {
 	$Monitors::SMARTDisk::VERSION = '0.1';
@@ -79,21 +80,43 @@ sub parse_attributes {
 		# looks like a disk device
 		# run with that....
 	} else {
-		my $lines = "";
-		if ($arg = /Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*)SMART\s+Error\s+Log\s+Version\:/s) { $lines = $1; }
-		else { die colored("Couldn't isolate the attibutes grid in the sample provided. \n|$arg|\n", "bold red"); }
+		#my $lines = "";
+					#Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:
+		#if ($arg =~ /Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:/s) { $lines = $1; }
+		#else { die colored("Couldn't isolate the attibutes grid in the sample provided. \n|$arg|\n", "bold red"); }
+		my ($lines) = $arg =~ /.*Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:.*/s;
 		# looks like the raw text from the command, or
 		# at least the pertinent section(s)
-		print colored(Dumper($lines)."\n", "bold cyan");
-		foreach my $line ( @{ split("/\n+/", $arg) } ) {
+		#print colored(Dumper($lines)."\n", "bold cyan");
+		foreach my $line ( (split(/\n+/, $arg)) ) {
+			print colored("|$line| \n", "bold cyan");
 			given ($line) {
-				when (/ID\#.*/) {		next; }
-				when (/^\s*(\d+)\s+([a-zA-Z_-]+)\s+[0-9a-fA-Fx]+\s(\d{3})\s+(\d{3})\s+(\d{3})\s+(Pre-fail|Old_Age)\s+(Always|Offline)\s+\-\s+(.*)/) {
+				when (/SMART\s+Error\s+Log\s+Version\:\s+\d+/) { 			last; }
+				when (/\s*(\d+)\s+(.*?)\s+.*?\s+(\d{3})\s+(\d{3})\s+(\d{3}|\-{3})\s+(Pre-fail|Old_[Aa]ge)\s+(Always|Offline)\s+\-\s+(.*)/) {
 					my $id = $1; my $name = $2; my $value = $3; my$worst = $4; my $thresh = $5;
 					my $type = $6; my $updated = $7; my $raw_val = $8;
 					my $attr = Monitors::SMARTDisk::SMARTAttribute->new($id,$name,$value,$worst,$thresh,$type,$updated,$raw_val);
 					push @attrs, $attr;
 				}
+				when (/^\s*ID\#.*/) {										next; }
+				when (/^smartctl\s+\d+\.\d+\s+.*/) {						next; }
+				when (/^Copyright\s+\(C\)/) {								next; }
+				when (/^\=\=\=.*/) {										next; }
+				when (/[a-zA-Z _-]+\:\s*/) {								next; }
+				when (/^\s+was\s+never\s+started/) {						next; }
+				when (/^\s+without\s+error\s+or\s+no\s+self/) {				next; }
+				when (/^\s+been\s+run\./) {									next; }
+				when (/^Total\s+time\s+to\s+complete/) { 					next; }
+				when (/^Offline\s+data\s+collection/) { 					next; }
+				when (/^\s+Auto\s+[Oo]ffline\s+data\s+collection/) {		next; }
+				when (/^\s*Suspend\s+Offline\s+/) { 						next; }
+				when (/\s+command\./) { 									next; }
+				when (/^\s+Offline\s+surface\s+scan\s+/) { 					next; }
+				when (/\s*[Ss]elf\-test\s+supported/) { 					next; }
+				when (/power\-saving\s+mode/) {								next; }
+				when (/[Ss]upports\s+SMART\s+auto\s+save\s+timer/) { 		next; }
+				when (/General\s+Purpose\s+Logging/) {						next; }
+				when (/(?:[Ss]hort|Extended)\s+self-test\s+routine/) {					next; }
 				default { die colored("Didn't recognize line: |$line| \n", "bold red"); }
 			}
 		}
@@ -163,6 +186,7 @@ sub update_data {
 		}
 	}
 
+	#print colored("$out \n", "bold green");
 	my $attrs = &parse_attributes($out);
 	$self->{'devices'}->{$device}->{'attributes'} = $attrs;
 
