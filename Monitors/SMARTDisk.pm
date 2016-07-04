@@ -70,6 +70,38 @@ sub has_errors {
 	return $has_errors;
 }
 
+sub parse_attributes {
+	my $arg = shift(@_);
+
+	my @attrs;
+
+	if ($arg =~ /^\/dev\/x?[sv]d[a-z]\d+$/) {
+		# looks like a disk device
+		# run with that....
+	} else {
+		my $lines = "";
+		if ($arg = /Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*)SMART\s+Error\s+Log\s+Version\:/s) { $lines = $1; }
+		else { die colored("Couldn't isolate the attibutes grid in the sample provided. \n|$arg|\n", "bold red"); }
+		# looks like the raw text from the command, or
+		# at least the pertinent section(s)
+		print colored(Dumper($lines)."\n", "bold cyan");
+		foreach my $line ( @{ split("/\n+/", $arg) } ) {
+			given ($line) {
+				when (/ID\#.*/) {		next; }
+				when (/^\s*(\d+)\s+([a-zA-Z_-]+)\s+[0-9a-fA-Fx]+\s(\d{3})\s+(\d{3})\s+(\d{3})\s+(Pre-fail|Old_Age)\s+(Always|Offline)\s+\-\s+(.*)/) {
+					my $id = $1; my $name = $2; my $value = $3; my$worst = $4; my $thresh = $5;
+					my $type = $6; my $updated = $7; my $raw_val = $8;
+					my $attr = Monitors::SMARTDisk::SMARTAttribute->new($id,$name,$value,$worst,$thresh,$type,$updated,$raw_val);
+					push @attrs, $attr;
+				}
+				default { die colored("Didn't recognize line: |$line| \n", "bold red"); }
+			}
+		}
+	}
+
+	return \@attrs;
+}
+
 sub update_data {
 	my $self	= shift(@_);
 	my $device	= shift(@_);
@@ -130,6 +162,9 @@ sub update_data {
 			default { die colored("Line didn't match: $line \n", "bold red"); }
 		}
 	}
+
+	my $attrs = &parse_attributes($out);
+	$self->{'devices'}->{$device}->{'attributes'} = $attrs;
 
 	return $from_bool{'true'};
 }
