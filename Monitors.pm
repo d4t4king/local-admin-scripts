@@ -155,7 +155,7 @@ sub sensor_parse {
 					warn colored("Matched sensor line, but didn't get sensor or temp! \n", "yellow");
 				} # if/else
 			}
-			when (/\s*(fan\d+\_(?:input|min|max))\:\s+([0-9.]+)/) {
+			when (/\s*(fan\d+(?:\_(?:input|min|max))?)\:\s*([0-9.]+)?/) {
 				#$sensor = $1; $temp = $2;
 				#print "Sensor: $sensor \n" if ($verbose);
 				#print "Temp: $temp \n" if ($verbose);
