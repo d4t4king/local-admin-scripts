@@ -107,39 +107,47 @@ sub parse_attributes {
 					#Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:
 		#if ($arg =~ /Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:/s) { $lines = $1; }
 		#else { die colored("Couldn't isolate the attibutes grid in the sample provided. \n|$arg|\n", "bold red"); }
-		my ($lines) = $arg =~ /.*Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:.*/s;
+		#my ($lines) = $arg =~ /.*Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:.*/s;
 		# looks like the raw text from the command, or
 		# at least the pertinent section(s)
 		#print colored(Dumper($lines)."\n", "bold cyan");
 		foreach my $line ( (split(/\n+/, $arg)) ) {
 			#print colored("|$line| \n", "bold cyan");
 			given ($line) {
-				when (/SMART\s+Error\s+Log\s+Version\:\s+\d+/) { 			last; }
+				when (/SMART\s+Error\s+Log\s+Version\:\s+\d+/) { 						last; }
 				when (/\s*(\d+)\s+(.*?)\s+.*?\s+(\d{3})\s+(\d{3})\s+(\d{3}|\-{3})\s+(Pre-fail|Old_[Aa]ge)\s+(Always|Offline)\s+\-\s+(.*)/) {
 					my $id = $1; my $name = $2; my $value = $3; my$worst = $4; my $thresh = $5;
 					my $type = $6; my $updated = $7; my $raw_val = $8;
+					if ($name eq "Airflow_Temperature_Cel") { 
+						if ($raw_val =~ /(\d+)\s+\(Min\/Max\s+\d+\/\d+\)/) {
+							my $val = $1; $raw_val = $val;
+						}
+					}
 					my $attr = Monitors::SMARTDisk::SMARTAttribute->new($id,$name,$value,$worst,$thresh,$type,$updated,$raw_val);
 					push @attrs, $attr;
 				}
-				when (/^\s*ID\#.*/) {										next; }
-				when (/^smartctl\s+\d+\.\d+\s+.*/) {						next; }
-				when (/^Copyright\s+\(C\)/) {								next; }
-				when (/^\=\=\=.*/) {										next; }
-				when (/[a-zA-Z _-]+\:\s*/) {								next; }
-				when (/^\s+was\s+never\s+started/) {						next; }
-				when (/^\s+without\s+error\s+or\s+no\s+self/) {				next; }
-				when (/^\s+been\s+run\./) {									next; }
-				when (/^Total\s+time\s+to\s+complete/) { 					next; }
-				when (/^Offline\s+data\s+collection/) { 					next; }
-				when (/^\s+Auto\s+[Oo]ffline\s+data\s+collection/) {		next; }
-				when (/^\s*Suspend\s+Offline\s+/) { 						next; }
-				when (/\s+command\./) { 									next; }
-				when (/^\s+Offline\s+surface\s+scan\s+/) { 					next; }
-				when (/\s*[Ss]elf\-test\s+supported/) { 					next; }
-				when (/power\-saving\s+mode/) {								next; }
-				when (/[Ss]upports\s+SMART\s+auto\s+save\s+timer/) { 		next; }
-				when (/General\s+Purpose\s+Logging/) {						next; }
+				when (/^\s*ID\#.*/) {													next; }
+				when (/^smartctl\s+\d+\.\d+\s+.*/) {									next; }
+				when (/^Copyright\s+\(C\)/) {											next; }
+				when (/^\=\=\=.*/) {													next; }
+				when (/[a-zA-Z _-]+\:\s*/) {											next; }
+				when (/^\s+was\s+never\s+started/) {									next; }
+				when (/^\s+without\s+error\s+or\s+no\s+self/) {							next; }
+				when (/^\s+been\s+run\./) {												next; }
+				when (/^Total\s+time\s+to\s+complete/) { 								next; }
+				when (/^Offline\s+data\s+collection/) { 								next; }
+				when (/^\s+(?:No)?\s+Auto\s+[Oo]ffline\s+data\s+collection/) {			next; }
+				when (/^\s*Suspend\s+Offline\s+/) { 									next; }
+				when (/\s+command\./) { 												next; }
+				when (/^\s*(?:No)?\s+Offline\s+surface\s+scan\s+/) { 					next; }
+				when (/\s*[Ss]elf\-test\s+supported/) { 								next; }
+				when (/power\-saving\s+mode/) {											next; }
+				when (/[Ss]upports\s+SMART\s+auto\s+save\s+timer/) { 					next; }
+				when (/General\s+Purpose\s+Logging/) {									next; }
 				when (/(?:[Ss]hort|Extended)\s+self-test\s+routine/) {					next; }
+				when (/\s*SCT\s+Error\s+Recovery\s+Control\s+supported\./) {			next; }
+				when (/\s*SCT\s+Feature\s+Control\s+supported\./) {						next; }
+				when (/\s*SCT\s+Data\s+Table\s+supported\./) { 							next; }
 				default { die colored("Didn't recognize line: |$line| \n", "bold red"); }
 			}
 		}
