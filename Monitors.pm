@@ -79,6 +79,16 @@ sub sensor_parse {
 				my $sens = Monitors::Sensor->new($node,"");
 				$adpt->{'sensors'}{$node} = $sens;
 			}
+			when (/([Ee]xhaust)\s*\:/) {
+				$node = $1;
+				my $sens = Monitors::Sensor->new($node,"");
+				$adpt->{'sensors'}{$node} = $sens;
+			}
+			when (/(T[a-zA-Z0-9]{3}):/) {
+				$node = $1;
+				my $sens = Monitors::Sensor->new($node,"");
+				$adpt->{'sensors'}{$node} = $sens;
+			}
 			when (/(temp\d+\_(?:input|min|alarm|max(?:\_hyst)?|crit(?:\_(?:alarm|hyst))?|emergency(?:\_hyst)?)):\s+(\d+\.\d+)/) {
 				$sensor = $1; $temp = $2;
 				print "Sensor: $sensor \n" if ($verbose);
@@ -140,15 +150,48 @@ sub sensor_parse {
 						default {
 							print "S: $sensor\t\tT: $temp \n";
 						}
-					}
+					} # given()
 				} else {
 					warn colored("Matched sensor line, but didn't get sensor or temp! \n", "yellow");
-				}
+				} # if/else
+			}
+			when (/\s*(fan\d+\_(?:input|min|max))\:\s+([0-9.]+)/) {
+				#$sensor = $1; $temp = $2;
+				#print "Sensor: $sensor \n" if ($verbose);
+				#print "Temp: $temp \n" if ($verbose);
+				#if (((defined($sensor)) and ($sensor ne "")) and 
+				#	((defined($temp)) and ($temp ne ''))) {
+				#	given ($sensor) {
+				#		when (/(fan\d+)\_input/) {
+				#			my $s = $1;
+				#			if ($node =~ /([Ee]xhaust)/) { $s = "$node"; }
+				#			$adpt->{'sensors'}{$s}{'fan_input'} = $temp;
+				#		}
+				#		when (/(fan\d+)\_min/) {
+				#			my $s = $1;
+				#			if ($node =~ /([Ee]xhaust)/) { $s = "$node"; }
+				#			$adpt->{'sensors'}{$s}{'fan_min'} = $temp;
+				#		}
+				#		when (/(fan\d+)\_max/) {
+				#			my $s = $1;
+				#			if ($node =~ /([Ee]xhaust)/) { $s = "$node"; }
+				#			$adpt->{'sensors'}{$s}{'fan_max'} = $temp;
+				#		}
+				#		default {
+				#			print "S: $sensor\t\tT: $temp \n";
+				#		}
+				#	}
+				#} else {
+				#	warn colored("Matched sensor line,  but didn't get sensor or temp! \n", "yellow");
+				#}
+				# not a temperature sensors
+				# we'll deal with fan sensors later
+				next;
 			}
 			default {
 				# if we get here, there is something wrong or unexpected.
 				warn colored("Unrecognized section line: |$l| \n", "bold red");
-			}
+			} # given()
 		}
 	}
 	#my $sensor_obj = Monitors::Sensor->new($circid,$adapter,$node,$sensor,$temp);

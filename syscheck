@@ -481,6 +481,7 @@ sub check_temps {
 			#print Dumper($s);
 			$total_sensors++;
 			print colored(Dumper($o->{'sensors'}->{$s}), "yellow") if (($verbose) and ($verbose > 1));;
+			next if ($o->{'sensors'}->{$s} =~ /(?:[Ee]xhaust|fan\d+\_(?:input|max|min))/);
 			if ($o->{'sensors'}->{$s}->high_temp) {
 				#print colored("High temp on $o->{'sensors'}->{$s}->{'name'}! \n", "bold magenta");
 				print colored("High temp on $o->{'sensors'}->{$s}->{'fully_qualified_name'}: ", "bold yellow");
