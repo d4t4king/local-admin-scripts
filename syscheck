@@ -87,11 +87,11 @@ given ($action) {
 		}
 	}
 	when (/temps/) {
-		my ($rc,$temp_ref) = &check_temps;
-		if (!$rc) {
+		my ($success, $temp_ref) = &check_temps;
+		if (!$success) {
 			print colored("good. \n", "bold green");
 		} else {
-			print "RC: $rc \n";
+			print "RC: $success \n";
 			print Dumper($temp_ref);
 		}
 	}
@@ -114,6 +114,54 @@ given ($action) {
 		if ($success) { print colored("good. \n", "bold green"); }
 		else { print colored("error. \n", "bold red"); }
 		#print "=" x 72; print "\n";
+	}
+	when (/all/) {
+		my $success = 0;
+		my $notgood = 0;
+		print "Running all checks..... \n";
+		print colored("\t...mounts...\n", "bold cyan");
+		my $ref = &check_mounts();
+		foreach my $k ( sort keys %{$ref} ) {
+			next if ($k eq 'total');
+			next if ($k eq '_ALL_');
+			$notgood++ if ($ref->{$k});
+		}
+		if ($notgood) {
+			print colored("$notgood / $ref->{'_ALL_'} had issues. \n", "yellow");
+		} else {
+			print colored("good. \n", "bold green");
+		}
+		print Dumper($ref) if (($verbose) and ($verbose > 1));
+		$notgood = 0; $success = 0;
+		print colored("\t...memory...\n", "bold cyan");
+		$ref = &check_memory();
+		foreach my $k ( sort keys %{$ref} ) { 
+			next if ($k eq 'total');
+			next if ($k eq '_ALL_');
+			$notgood++ if ($ref->{$k}); 
+		}
+		if ($notgood) {
+			print colored("$notgood / $ref->{'_ALL_'} had issues.\n", "yellow");
+		} else {
+			print colored("good. \n", "bold green");
+		}
+		print Dumper($ref) if (($verbose) and ($verbose > 1));
+		$notgood = 0;
+		print colored("\t...temps...\n", "bold cyan");
+		($success, $ref) = &check_temps();
+		if ($success) { print colored("good. \n", "bold green"); }
+		else { print colored(" issues found. \n", "yellow"); }
+		print Dumper($ref) if (($verbose) and ($verbose > 1));
+		print colored("\t...smart...\n", "bold cyan");
+		($success, $ref) = &check_smart();
+		if ($success) { print colored("good. \n", "bold green"); }
+		else { print colored("issues found. \n", "yellow"); }
+		print Dumper($ref) if (($verbose) and ($verbose > 1));
+		print colored("\t...network...\n", "bold cyan");
+		($success, $ref) = &check_network();
+		if ($success) { print colored("good. \n", "bold green"); }
+		else { print colored("issues found. \n", "yellow"); }
+		print Dumper($ref) if (($verbose) and ($verbose > 1));
 	}
 	default {
 		die colored("Unrecognized action: $action \n", "bold red");
@@ -446,7 +494,7 @@ sub check_temps {
 	my $total_sensors = 0;
 	my %sensors;
 
-	print colored("Checking temps....", "bold green");
+	print colored("Checking temps .....", "bold green");
 
 	### TO DO:  Clean this up.  Use regex or grep to filter out available
 	### sensor buses, then call each sensor bus individually.
@@ -502,7 +550,7 @@ sub check_temps {
 sub check_smart {
 	my $smart = Monitors::SMARTDisk->new();
 
-	print colored("Checking SMART.... ", "bold green");
+	print colored("Checking SMART ..... ", "bold green");
 	
 	#print colored(Dumper($smart)." \n", "magenta");
 
@@ -517,7 +565,7 @@ sub check_smart {
 sub check_network {
 	my $net = Monitors::Network->new(0, 'local');
 
-	print colored("Checking network.... ", "bold green");
+	print colored("Checking network ..... ", "bold green");
 
 	my %errs; my $rc = $from_bool{'false'};
 	foreach my $ifc ( @{ $net->{'interfaces'} } ) {
