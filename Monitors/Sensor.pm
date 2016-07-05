@@ -67,7 +67,7 @@ sub high_temp {
 			} else {
 				return 0;		# false
 			}
-		} elsif (defined($self->{'crit_temp'})) {
+		} elsif ((defined($self->{'crit_temp'})) and ($self->{'crit_temp'} != 0)) {
 			if ($self->{'input_temp'} >= ($self->{'crit_temp'} - 5)) {
 				return 1;
 			} else {

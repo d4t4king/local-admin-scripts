@@ -508,7 +508,7 @@ sub check_temps {
 	my @objs;
 	foreach my $adpt ( @adpts ) {
 		#print "$adpt \n";
-		my $rsd = `$sensors -u $adpt`; 
+		my $rsd = qx($sensors -u $adpt); 
 		my $o = Monitors->sensor_parse($rsd);
 		#print Dumper($o);
 		push @objs, $o;
