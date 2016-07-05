@@ -3,8 +3,8 @@
 package Monitors::SMARTDisk;
 use base ("Monitors");
 
-use Exporter;
-our @ISA		=	qw( Exporter );
+#use Exporter;
+#our @ISA		=	qw( Exporter );
 our @EXPORT		=	qw( new );
 our @EXPORT_OK	=	qw( );
 {
@@ -23,7 +23,7 @@ use Term::ANSIColor;
 use Data::Dumper;
 
 use lib '/root/local-admin-scripts';
-use Monitors;
+#use Monitors;
 use Monitors::SMARTDisk::SMARTAttribute;
 
 {

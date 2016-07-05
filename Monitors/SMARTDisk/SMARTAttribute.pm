@@ -3,8 +3,8 @@
 package Monitors::SMARTDisk::SMARTAttribute;
 use base "Monitors::SMARTDisk";
 
-use Exporter;
-our @ISA			= qw( Exporter );
+#use Exporter;
+#our @ISA			= qw( Exporter );
 our @EXPORT			= qw( new );
 our @EXPORT_OK		= qw( );
 {

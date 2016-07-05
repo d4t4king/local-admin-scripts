@@ -18,6 +18,7 @@ use lib '/root/local-admin-scripts';
 use Monitors;
 use Monitors::Mount;
 use Monitors::SMARTDisk;
+use Monitors::Network;
 
 my ($help,$verbose,$config);
 $verbose = 0;
@@ -102,6 +103,17 @@ given ($action) {
 			print "RC: $rc \n";
 		}
 		print Dumper($smart_ref);
+	}
+	when (/network/) {
+		my ($success, $net_ref) = &check_network;
+		#print "=" x 72; print "\n";
+		#print "= In syscheck main: \n";
+		#print "=" x 72; print "\n";
+		#print "RC: $rc \n";
+		#print Dumper($net_ref);
+		if ($success) { print colored("good. \n", "bold green"); }
+		else { print colored("error. \n", "bold red"); }
+		#print "=" x 72; print "\n";
 	}
 	default {
 		die colored("Unrecognized action: $action \n", "bold red");
@@ -499,4 +511,22 @@ sub check_smart {
 	} else {
 		return 1, $smart;
 	}
+}
+
+sub check_network {
+	my $net = Monitors::Network->new(0, 'local');
+
+	print colored("Checking network.... ", "bold green");
+
+	my %errs; my $rc = $from_bool{'false'};
+	foreach my $ifc ( @{ $net->{'interfaces'} } ) {
+		my $errs = 0;
+		$errs++ if ($ifc->{'rx_dropped'} > 0);
+		$errs++ if ($ifc->{'rx_errors_percent'} > 5);
+		$errs++ if ($ifc->{'tx_errors_percent'} > 5);
+		$errs{$ifc->{'name'}} = $errs;
+		$rc = $from_bool{'true'} if (($errs == 0) and (!$rc));
+	}
+	
+	return $rc, \%errs;
 }
