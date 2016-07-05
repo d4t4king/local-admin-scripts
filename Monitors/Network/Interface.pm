@@ -97,13 +97,13 @@ sub populate {
 	foreach my $l ( split(/\n/s, $self->{'raw'}) ) {
 		given ($l) {
 			#5: vmnet8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN mode DEFAULT group default qlen 1000
-			when (/\d+:\s+.*:\s+\<(?:(NO-CARRIER),)?(LOOPBACK|BROADCAST)\,(?:(MULTICAST)\,)?(UP)(?:\,(LOWER_UP))?\>\s+mtu\s+(\d+)\s+(.*)/) {
+			when (/\d+:\s+.*:\s+\<(?:(NO-CARRIER),)?(LOOPBACK|BROADCAST)\,(?:(MULTICAST)\,?)?(UP)?(?:\,(LOWER_UP))?\>\s+mtu\s+(\d+)\s+(.*)/) {
 				my $c = $1; my $lb = $2; my $mcast = $3; my $up = $4; my $lup = $5; my $mtu = $6; my $flags = $7;
 				#print "C: $c LB: $lb M: $mcast UP: $up LUP: $lup MTU: $mtu FLAGS: $flags \n";
 				$self->{'MTU'} = $mtu;
 			}
 		    #link/ether 00:50:56:c0:00:08 brd ff:ff:ff:ff:ff:ff promiscuity 0 
-			when (/link\/(?:loopback|ether)\s+([0-9a-fA-F:]{17})\s+brd\s+([0-9a-fA-F:]{17})\s+promiscuity\s(0|1)/) {
+			when (/link\/(?:loopback|ether)\s+([0-9a-fA-F:]{17})\s+brd\s+([0-9a-fA-F:]{17})\s*(?:promiscuity\s(0|1))?/) {
 				my $link = $1; my $mac = $2; my $arp_brd = $3; my $promisc = $4;
 				$self->{'link'} = $link; $self->{'mac_addr'} = $mac; 
 				$self->{'hw_broadcast'} = $arp_brd; $self->{'promiscuous_mode'} = $promisc;
