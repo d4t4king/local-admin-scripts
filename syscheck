@@ -309,8 +309,9 @@ sub check_mounts {
 				# skip the header
 				next;
 			}
-			when (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root)/) {
+			when (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root|rootfs)/) {
 				# don't really care about tmp filesystems
+				# also, if there is a mount named "rootfs" it should also have a /dev assigned to it.
 				next;
 			}
 			when (/(\/dev\/x?(?:[sv]d[a-f]\d|disk\/by-label\/DOROOT|mapper\/opt_crypt|dm\-\d))\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
