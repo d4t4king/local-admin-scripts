@@ -114,7 +114,7 @@ sub parse_attributes {
 		foreach my $line ( (split(/\n+/, $arg)) ) {
 			#print colored("|$line| \n", "bold cyan");
 			given ($line) {
-				when (/SMART\s+Error\s+Log\s+Version\:\s+\d+/) { 						last; }
+				when (/SMART\s+Error\s+Log\s+Version\:\s+\d+/) { 							last; }
 				when (/\s*(\d+)\s+(.*?)\s+.*?\s+(\d{3})\s+(\d{3})\s+(\d{3}|\-{3})\s+(Pre-fail|Old_[Aa]ge)\s+(Always|Offline)\s+\-\s+(.*)/) {
 					my $id = $1; my $name = $2; my $value = $3; my$worst = $4; my $thresh = $5;
 					my $type = $6; my $updated = $7; my $raw_val = $8;
@@ -126,30 +126,32 @@ sub parse_attributes {
 					my $attr = Monitors::SMARTDisk::SMARTAttribute->new($id,$name,$value,$worst,$thresh,$type,$updated,$raw_val);
 					push @attrs, $attr;
 				}
-				when (/^\s*ID\#.*/) {													next; }
-				when (/^smartctl\s+\d+\.\d+\s+.*/) {									next; }
-				when (/^Copyright\s+\(C\)/) {											next; }
-				when (/^\=\=\=.*/) {													next; }
-				when (/[a-zA-Z _-]+\:\s*/) {											next; }
-				when (/^\s+was\s+never\s+started/) {									next; }
-				when (/^\s+without\s+error\s+or\s+no\s+self/) {							next; }
-				when (/^\s+been\s+run\./) {												next; }
-				when (/^Total\s+time\s+to\s+complete/) { 								next; }
-				when (/^Offline\s+data\s+collection/) { 								next; }
-				when (/^\s+(?:No)?\s+Auto\s+[Oo]ffline\s+data\s+collection/) {			next; }
-				when (/^\s*Suspend\s+Offline\s+/) { 									next; }
-				when (/\s+command\./) { 												next; }
-				when (/^\s*(?:No)?\s+Offline\s+surface\s+scan\s+/) { 					next; }
-				when (/\s*[Ss]elf\-test\s+supported/) { 								next; }
-				when (/power\-saving\s+mode/) {											next; }
-				when (/[Ss]upports\s+SMART\s+auto\s+save\s+timer/) { 					next; }
-				when (/General\s+Purpose\s+Logging/) {									next; }
-				when (/(?:[Ss]hort|Extended)\s+self-test\s+routine/) {					next; }
-				when (/\s*SCT\s+Error\s+Recovery\s+Control\s+supported\./) {			next; }
-				when (/\s*SCT\s+Feature\s+Control\s+supported\./) {						next; }
-				when (/\s*SCT\s+Data\s+Table\s+supported\./) { 							next; }
-				when (/Error\s+Counter\s+logging\s+not\s+supported/) {					next; }
-				when (/Device\s+does\s+not\s+support\s+Self\s+Test\s+logging/) {		next; }
+				when (/^\s*ID\#.*/) {														next; }
+				when (/^smartctl\s+\d+\.\d+\s+.*/) {										next; }
+				when (/^Copyright\s+\(C\)/) {												next; }
+				when (/^\=\=\=.*/) {														next; }
+				when (/[a-zA-Z _-]+\:\s*/) {												next; }
+				when (/^\s+was\s+never\s+started/) {										next; }
+				when (/^\s+without\s+error\s+or\s+no\s+self/) {								next; }
+				when (/^\s+been\s+run\./) {													next; }
+				when (/^Total\s+time\s+to\s+complete/) { 									next; }
+				when (/^Offline\s+data\s+collection/) { 									next; }
+				when (/^\s+(?:No)?\s+Auto\s+[Oo]ffline\s+data\s+collection/) {				next; }
+				when (/^\s*Suspend\s+Offline\s+/) { 										next; }
+				when (/\s+command\./) { 													next; }
+				when (/^\s*(?:No)?\s+Offline\s+surface\s+scan\s+/) { 						next; }
+				when (/\s*[Ss]elf\-test\s+supported/) { 									next; }
+				when (/power\-saving\s+mode/) {												next; }
+				when (/[Ss]upports\s+SMART\s+auto\s+save\s+timer/) { 						next; }
+				when (/General\s+Purpose\s+Logging/) {										next; }
+				when (/(?:[Ss]hort|Extended)\s+self-test\s+routine/) {						next; }
+				when (/\s*SCT\s+Error\s+Recovery\s+Control\s+supported\./) {				next; }
+				when (/\s*SCT\s+Feature\s+Control\s+supported\./) {							next; }
+				when (/\s*SCT\s+Data\s+Table\s+supported\./) { 								next; }
+				when (/Error\s+Counter\s+logging\s+not\s+supported/) {						next; }
+				when (/Device\s+does\s+not\s+support\s+Self\s+Test\s+logging/) {			next; }
+				when (/Please\s+specify\s+device\s+type\s+with\s+the\s+\-d\s+option\./) { 	next; }
+				when (/Use\s+smartctl\s+\-h\s+to\s+get\s+a\s+usage\s+summary/) {			next; }
 				default { die colored("Didn't recognize line: |$line| \n", "bold red"); }
 			}
 		}
@@ -169,36 +171,36 @@ sub update_data {
 
 	foreach my $line ( split(/\n+/, $out) ) {
 		given ($line) {
-			when (/\=\=\=\s+START\s+OF\s+READ\s+SMART\s+DATA\s+SECTION\s+\=\=\=/) { last; }
-			when (/Vendor\:\s+VMware/)							{ next; }
-			when (/Product\:\s+Virtual\s*disk/)					{ next; }
-			when (/Device\s+type\:\s+(.*)/)						{ $self->{'devices'}->{$device}->{'info'}{'device_type'} = $1; }
-			when (/Device\s+Model\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'model'} = $1; }
-			when (/Vendor\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'vendor'} = $1; }
-			when (/Product\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'product'} = $1; }
-			when (/Model\s+Family\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'model_family'} = $1; }
-			when (/Serial\s+[Nn]umber\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'serial_number'} = $1; }
-			when (/Firmware\s+Version\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'firmware_ver'} = $1; }
-			when (/LU\s+WWN\s+Device\s+Id\:\s+(.*)/)			{ $self->{'devices'}->{$device}->{'info'}{'lu_wnn_device_id'} = $1; }
-			when (/Form\s+Factor\:\s+(.*)/)						{ $self->{'devices'}->{$device}->{'info'}{'form_factor'} = $1; }
+			when (/\=\=\=\s+START\s+OF\s+READ\s+SMART\s+DATA\s+SECTION\s+\=\=\=/) 		{ last; }
+			when (/Vendor\:\s+VMware/)													{ next; }
+			when (/Product\:\s+Virtual\s*disk/)											{ next; }
+			when (/Device\s+type\:\s+(.*)/)												{ $self->{'devices'}->{$device}->{'info'}{'device_type'} = $1; }
+			when (/Device\s+Model\:\s+(.*)/)											{ $self->{'devices'}->{$device}->{'info'}{'model'} = $1; }
+			when (/Vendor\:\s+(.*)/)													{ $self->{'devices'}->{$device}->{'info'}{'vendor'} = $1; }
+			when (/Product\:\s+(.*)/)													{ $self->{'devices'}->{$device}->{'info'}{'product'} = $1; }
+			when (/Model\s+Family\:\s+(.*)/)											{ $self->{'devices'}->{$device}->{'info'}{'model_family'} = $1; }
+			when (/Serial\s+[Nn]umber\:\s+(.*)/)										{ $self->{'devices'}->{$device}->{'info'}{'serial_number'} = $1; }
+			when (/Firmware\s+Version\:\s+(.*)/)										{ $self->{'devices'}->{$device}->{'info'}{'firmware_ver'} = $1; }
+			when (/LU\s+WWN\s+Device\s+Id\:\s+(.*)/)									{ $self->{'devices'}->{$device}->{'info'}{'lu_wnn_device_id'} = $1; }
+			when (/Form\s+Factor\:\s+(.*)/)												{ $self->{'devices'}->{$device}->{'info'}{'form_factor'} = $1; }
 			when (/User\s+Capacity\:\s+([0-9,]+)\s+bytes\s+\[(.*)\]/) {
 				$self->{'devices'}->{$device}->{'info'}{'capacity_bytes'} = $1;
 				$self->{'devices'}->{$device}->{'info'}{'capacity_hr'} = $2;
 			}
-			when (/Sector\s+Size\:\s+(.*)/)						{ $self->{'devices'}->{$device}->{'info'}{'sector_size'} = $1; }
-			when (/Rotation\s+Rate\:\s+(.*)/)					{ $self->{'devices'}->{$device}->{'info'}{'rotation_rate'} = $1; }
-			when (/Device\s+is\:\s+(.*)/)						{ 
+			when (/Sector\s+Size\:\s+(.*)/)												{ $self->{'devices'}->{$device}->{'info'}{'sector_size'} = $1; }
+			when (/Rotation\s+Rate\:\s+(.*)/)											{ $self->{'devices'}->{$device}->{'info'}{'rotation_rate'} = $1; }
+			when (/Device\s+is\:\s+(.*)/)												{ 
 				my $d = $1;
 				#print colored("D: $d \n", "bold cyan");
 				if ($d =~ /^Not\s+in\s+smartctl\s+database.*/) { 
 					$self->{'devices'}->{$device}->{'info'}{'in_database'} = $from_bool{'false'}; }
 				else { $self->{'devices'}->{$device}->{'info'}{'in_database'} = $from_bool{'true'}; }
 			}
-			when (/^ATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'ata_ver'} = $1; }
-			when (/^SATA\s+Version\s+is\:\s+(.*)/)				{ $self->{'devices'}->{$device}->{'info'}{'sata_ver'} = $1; }
-			when (/Revision\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'revision'} = $1; }
-			when (/Logical\s+block\s+size\:\s+(.*)/)							{ $self->{'devices'}->{$device}->{'info'}{'logical_block_size'} = $1; }
-			when (/SMART\s+support\s+is\:\s+(.*)/)				{ 
+			when (/^ATA\s+Version\s+is\:\s+(.*)/)										{ $self->{'devices'}->{$device}->{'info'}{'ata_ver'} = $1; }
+			when (/^SATA\s+Version\s+is\:\s+(.*)/)										{ $self->{'devices'}->{$device}->{'info'}{'sata_ver'} = $1; }
+			when (/Revision\:\s+(.*)/)													{ $self->{'devices'}->{$device}->{'info'}{'revision'} = $1; }
+			when (/Logical\s+block\s+size\:\s+(.*)/)									{ $self->{'devices'}->{$device}->{'info'}{'logical_block_size'} = $1; }
+			when (/SMART\s+support\s+is\:\s+(.*)/)										{ 
 				my $d = $1; 
 				#print colored("D: $d \n", "bold cyan");
 				given ($d) {
@@ -211,10 +213,13 @@ sub update_data {
 					default { next; }
 				}
 			}
-			when (/smartctl\s+\d\.\d* \d+\-\d+\-\d+\s+r\d+/)	{ next; }
-			when (/Local\s+Time\s+is\:/)						{ next; }
-			when (/\=\=\=\s+START.*/)							{ next; }
-			when (/Copyright \(C\).*/)							{ next; }
+			when (/smartctl\s+\d\.\d* \d+\-\d+\-\d+\s+r\d+/)							{ next; }
+			when (/Local\s+Time\s+is\:/)												{ next; }
+			when (/\=\=\=\s+START.*/)													{ next; }
+			when (/Copyright \(C\).*/)													{ next; }
+			when (/gvfsd-fuse/)															{ next; }
+			when (/Please\s+specify\s+device\s+type\s+with\s+the\s+\-d\s+option\./) 	{ next; }
+			when (/Use\s+smartctl\s+\-h\s+to\s+get\s+a\s+usage\s+summary/)				{ next; }
 			default { die colored("Line didn't match: $line \n", "bold red"); }
 		}
 	}
