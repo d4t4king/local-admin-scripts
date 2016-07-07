@@ -220,6 +220,7 @@ sub update_data {
 			when (/gvfsd-fuse/)															{ next; }
 			when (/Please\s+specify\s+device\s+type\s+with\s+the\s+\-d\s+option\./) 	{ next; }
 			when (/Use\s+smartctl\s+\-h\s+to\s+get\s+a\s+usage\s+summary/)				{ next; }
+			when (/none: Unable to detect device type/) {					{ next; }
 			default { die colored("Line didn't match: $line \n", "bold red"); }
 		}
 	}
