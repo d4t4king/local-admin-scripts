@@ -48,7 +48,7 @@ sub new {
 		foreach my $m ( @mounts ) {
 			chomp($m);
 			$m = &trim($m);
-			next if ($m =~ /^(?:te?mpfs|udev|proc|sysfs|cgroup|devpts|securityfs|pstore|debugfs|systemd|fusectl|hugetlbfs|rpc\_pipefs|vmware|mqueue|binfmt_misc|\/\/)/);
+			next if ($m =~ /^(?:(?:dev)?te?mpfs|udev|proc|sysfs|cgroup|devpts|securityfs|pstore|debugfs|systemd|fusectl|hugetlbfs|rpc\_pipefs|vmware|mqueue|binfmt_misc|rootfs|\/\/)/);
 			next if ($m =~ /^\/dev\/mapper\/.*\-root/);
 			#print colored("$m \n", "bold cyan");
 			my $d = (split(/\s+/, $m))[0];

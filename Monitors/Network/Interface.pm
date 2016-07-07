@@ -96,10 +96,16 @@ sub populate {
 	my $rx = 0; my $tx = 0;
 	foreach my $l ( split(/\n/s, $self->{'raw'}) ) {
 		given ($l) {
+			when (/link\/(?:none|void).*/) {				next; }
 			#5: vmnet8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN mode DEFAULT group default qlen 1000
 			when (/\d+:\s+.*:\s+\<(?:(NO-CARRIER),)?(LOOPBACK|BROADCAST)\,(?:(MULTICAST)\,?)?(UP)?(?:\,(LOWER_UP))?\>\s+mtu\s+(\d+)\s+(.*)/) {
 				my $c = $1; my $lb = $2; my $mcast = $3; my $up = $4; my $lup = $5; my $mtu = $6; my $flags = $7;
 				#print "C: $c LB: $lb M: $mcast UP: $up LUP: $lup MTU: $mtu FLAGS: $flags \n";
+				$self->{'MTU'} = $mtu;
+			}
+			#4: ipsec0: <NOARP> mtu 0 qdisc noop state DOWN mode DEFAULT qlen 10
+			when (/\d+:\s+.*:\s+\<NOARP\>\s*mtu\s+(\d+)\s+(.*)/) {
+				my $mtu = $1; my $flags = $2;
 				$self->{'MTU'} = $mtu;
 			}
 		    #link/ether 00:50:56:c0:00:08 brd ff:ff:ff:ff:ff:ff promiscuity 0 

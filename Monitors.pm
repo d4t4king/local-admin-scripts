@@ -100,7 +100,7 @@ sub sensor_parse {
 							my $s = $1;
 							if ($node =~ /(?:Core|Ch.\s+\d+DIMM\d+|Physical\s+id)\s+\d/) { $s = "$node"; }
 							$adpt->{'sensors'}{$s}->{'input_temp'} = $temp;
-							$adpt->{'sensors'}{$s}->{'fully_qualified_name'} = "$bus::$adapter::$node::$sensor";
+							$adpt->{'sensors'}{$s}->{'fully_qualified_name'} = "$bus\:\:$adapter\:\:$node\:\:$sensor";
 						}
 						when (/(temp\d+)\_alarm/) {
 							my $s = $1;
