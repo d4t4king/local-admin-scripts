@@ -71,7 +71,7 @@ sub has_errors {
 	foreach my $dev ( keys %{ $self->{'devices'} } ) {
 		my $smart_out	= $self->{'devices'}->{$dev}->{'raw_smart_data'};
 		my ($errors)	= $smart_out =~ /SMART\s+Error\s+Log\s+Version\:\s+[1-9](.*)SMART\s+Self-test\s+log/s;
-		$errors			= &trim($errors);
+		$errors			= &trim($errors) unless ((!defined($errors)) or ($errors eq ''));
 		if ((defined($errors)) and ($errors !~ /No\s+Errors\s+Logged/)) { $has_errors = $from_bool{'true'}; }
 		else { $has_errors = $from_bool{'false'}; }
 		$self->{'devices'}->{$dev}->{'info'}{'has_errors'} = $has_errors;
