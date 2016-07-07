@@ -148,6 +148,8 @@ sub parse_attributes {
 				when (/\s*SCT\s+Error\s+Recovery\s+Control\s+supported\./) {			next; }
 				when (/\s*SCT\s+Feature\s+Control\s+supported\./) {						next; }
 				when (/\s*SCT\s+Data\s+Table\s+supported\./) { 							next; }
+				when (/Error\s+Counter\s+logging\s+not\s+supported/) {					next; }
+				when (/Device\s+does\s+not\s+support\s+Self\s+Test\s+logging/) {		next; }
 				default { die colored("Didn't recognize line: |$line| \n", "bold red"); }
 			}
 		}

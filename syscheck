@@ -148,16 +148,26 @@ given ($action) {
 		print Dumper($ref) if (($verbose) and ($verbose > 1));
 		$notgood = 0;
 		print colored("\t...temps...\n", "bold cyan");
-		($success, $ref) = &check_temps();
-		if ($success) { print colored("good. \n", "bold green"); }
-		else { print colored(" issues found. \n", "yellow"); }
-		print Dumper($ref) if (($verbose) and ($verbose > 1));
-		print colored("\t...smart...\n", "bold cyan");
-		($success, $ref) = &check_smart();
-		if ($success) { print colored("good. \n", "bold green"); }
-		else { print colored("issues found. \n", "yellow"); }
-		print Dumper($ref) if (($verbose) and ($verbose > 1));
-		print colored("\t...network...\n", "bold cyan");
+		if (&is_vm) {
+			print colored("System looks like a VM.  Skipping temp check. ", "bold yellow on_blue");
+			print color('reset'); print "\n";
+		} else {
+			($success, $ref) = &check_temps();
+			if ($success) { print colored("good. \n", "bold green"); }
+			else { print colored(" issues found. \n", "yellow"); }
+			print Dumper($ref) if (($verbose) and ($verbose > 1));
+			print colored("\t...smart...\n", "bold cyan");
+		}
+		if (&is_vm) {
+			print colored("System looks like a VM.  Skipping SMART check. ", "bold yellow on_blue");
+			print color('reset'); print "\n";
+		} else {
+			($success, $ref) = &check_smart();
+			if ($success) { print colored("good. \n", "bold green"); }
+			else { print colored("issues found. \n", "yellow"); }
+			print Dumper($ref) if (($verbose) and ($verbose > 1));
+			print colored("\t...network...\n", "bold cyan");
+		}
 		($success, $ref) = &check_network();
 		if ($success) { print colored("good. \n", "bold green"); }
 		else { print colored("issues found. \n", "yellow"); }
@@ -579,4 +589,20 @@ sub check_network {
 	}
 	
 	return $rc, \%errs;
+}
+
+sub is_vm {
+	my $dmidecode = Monitors->get_binary('dmidecode');
+	die colored("Couldn't find the dmidecode binary! \n", "bold red") if ((!defined($dmidecode)) or ($dmidecode eq ''));
+	my $grep = Monitors->get_binary('grep');
+	die colored("Couldn't find the grep binary! \n", "bold red") if ((!defined($grep)) or ($grep eq ''));
+
+	my @out = qx($dmidecode | $grep -i product);
+	my $is_vm = 0;
+
+	foreach my $l ( @out ) {
+		if ($l =~ /VMware Virtual Platform/) { $is_vm = 1; last; }
+	}
+
+	return $is_vm;
 }
