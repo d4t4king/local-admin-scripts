@@ -96,13 +96,13 @@ given ($action) {
 		}
 	}
 	when (/smart/i) {
-		my ($rc, $smart_ref) = &check_smart;
-		if ($rc) {
+		my ($success, $smart_ref) = &check_smart;
+		if ($success) {
 			print colored("good. \n", "bold green");
 		} else {
-			print "RC: $rc \n";
+			print "RC: $success \n";
 		}
-		print Dumper($smart_ref);
+		print Dumper($smart_ref) if (($verbose) and ($verbose > 1));
 	}
 	when (/network/) {
 		my ($success, $net_ref) = &check_network;
@@ -601,7 +601,7 @@ sub is_vm {
 	my $is_vm = 0;
 
 	foreach my $l ( @out ) {
-		if ($l =~ /(?:VMware\s+Virtual\s+Platformi|VirtualBox)/) { $is_vm = 1; last; }
+		if ($l =~ /(?:VMware\s+Virtual\s+Platform|VirtualBox)/) { $is_vm = 1; last; }
 	}
 
 	return $is_vm;
