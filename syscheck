@@ -601,7 +601,7 @@ sub is_vm {
 	my $is_vm = 0;
 
 	foreach my $l ( @out ) {
-		if ($l =~ /VMware Virtual Platform/) { $is_vm = 1; last; }
+		if ($l =~ /(?:VMware\s+Virtual\s+Platformi|VirtualBox)/) { $is_vm = 1; last; }
 	}
 
 	return $is_vm;
