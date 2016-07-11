@@ -2,6 +2,13 @@
 
 package Monitors;
 
+use Exporter;
+@EXPORT		= qw( sensor_parse );
+@EXPORT_OK	= qw( );
+
+{
+	$Monitors::VERSION = '0.0.1';
+}
 use strict;
 use warnings;
 

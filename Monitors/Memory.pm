@@ -3,8 +3,7 @@
 package Monitors::Memory;
 use base ("Monitors");
 
-our @ISA		= qw( Exporter );
-our @EXPORT		= qw( );
+our @EXPORT		= qw( new );
 our @EXPORT_OK	= qw( );
 {
 	$Monitors::Memory::VERSION = '0.0.1';

@@ -3,14 +3,12 @@
 package Monitors::Network;
 use base 'Monitors';
 
-#use Exporter;
-#our @ISA		= qw( Exporter );
+use Exporter;
 our @EXPORT		= qw( new parse_interfaces );
 our @EXPORT_OK	= qw( );
 {
 	$Monitors::Network::VERSION = '0.0.1';
 }
-#our $VERSION = '0.0.1';
 
 use Data::Dumper;
 use Term::ANSIColor;

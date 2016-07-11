@@ -3,7 +3,6 @@
 package Monitors::Mount;
 use base ('Monitors');
 
-our @ISA		= qw( Exporter );
 our @EXPORT		= qw( new );
 our @EXPORT_OK	= qw( );
 {
@@ -59,20 +58,20 @@ sub new {
 	return $self;
 }
 
-sub __get_binary__ {
-	my $rtv = 1;
-	my $bin = shift(@_);
-
-    my $bin_path = `which $bin`;
-    chomp($bin_path);
-
-    if ((!defined($bin_path)) or ($bin_path eq "")) {
-        warn colored("Unable to find the `$bin` utility! \n", "yellow");
-        return 0;
-    } else {
-		return $bin_path;
-	}
-}
+#sub __get_binary__ {
+#	my $rtv = 1;
+#	my $bin = shift(@_);
+#
+#    my $bin_path = `which $bin`;
+#    chomp($bin_path);
+#
+#    if ((!defined($bin_path)) or ($bin_path eq "")) {
+#        warn colored("Unable to find the `$bin` utility! \n", "yellow");
+#        return 0;
+#    } else {
+#		return $bin_path;
+#	}
+#}
 
 sub __get_percent_free__ {
 	my $t 		= shift(@_);

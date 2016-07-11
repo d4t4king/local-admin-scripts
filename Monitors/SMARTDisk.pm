@@ -3,14 +3,12 @@
 package Monitors::SMARTDisk;
 use base ("Monitors");
 
-#use Exporter;
-#our @ISA		=	qw( Exporter );
+use Exporter;
 our @EXPORT		=	qw( new );
 our @EXPORT_OK	=	qw( );
 {
 	$Monitors::SMARTDisk::VERSION = '0.0.1';
 }
-#our $VERSION = '0.0.1';
 
 use strict;
 use warnings;
@@ -23,7 +21,6 @@ use Term::ANSIColor;
 use Data::Dumper;
 
 use lib '/root/local-admin-scripts';
-#use Monitors;
 use Monitors::SMARTDisk::SMARTAttribute;
 
 {

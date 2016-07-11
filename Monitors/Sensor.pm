@@ -4,13 +4,11 @@ package Monitors::Sensor;
 use base ("Monitors");
 
 require Exporter;
-our @ISA		= qw( Exporter );
 our @EXPORT		= qw( new high_temp );
 our @EXPORT_OK	= qw( set_id );
 {
 	$Monitors::Sensor::VERSION = '0.0.1';
 }
-#our $VERSION	= '0.0.1';
 
 use strict;
 use warnings;
