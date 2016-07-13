@@ -8,7 +8,6 @@ our @EXPORT_OK	= qw( );
 {
 	$Monitors::Memory::VERSION = '0.0.1';
 }
-#our $VERSION	= '0.0.1';
 
 use strict;
 use warnings;
@@ -20,9 +19,10 @@ sub new {
 	my $class = shift;
 	
 	my $self = {
-		'total'		= shift(@_),
-		'free'		= shift(@_),
-		'used'		= shift(@_),
+		'type'		=> shift,
+		'total'		=> shift,
+		'free'		=> shift,
+		'used'		=> shift,
 	};
 
 	bless $self, $class;

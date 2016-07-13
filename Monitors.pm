@@ -3,7 +3,7 @@
 package Monitors;
 
 use Exporter;
-@EXPORT		= qw( sensor_parse );
+@EXPORT		= qw( sensor_parse get_binary get_meminfo );
 @EXPORT_OK	= qw( );
 
 {
@@ -20,6 +20,7 @@ use Data::Dumper;
 use Term::ANSIColor;
 
 use Monitors::Adapter;
+use Monitors::Memory;
 use Monitors::Sensor;
 
 our %from_bool	= ( 'true'=>1, 'false'=>0 );
@@ -224,6 +225,41 @@ sub get_binary {
 	} else {
 		return $bin_path;
 	}
+}
+
+sub get_meminfo {
+	my ($mem, $swap, $total);
+	my $free = Monitors->get_binary('free');
+	my $raw_out = qx($free -t);
+	my @lines = split(/\n/, $raw_out);
+	foreach my $ln ( @lines ) {
+		given ($ln) {
+			when (/^(?:\s|\t)+total\s+used\s+free\s+shared\s+buffers\s+cached/) { 			next; }
+			when (/^(?:\s|\t)+total\s+used\s+free\s+shared\s+buff\/cache\s+available/) { 	next; }
+			when (/^\-\/\+\s+buffers\/cache\:\s+\d+\s+\d+/) {								next; }
+			when (/Mem:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+).*/) {
+				my $t = $1; my $u = $2; my $f = $3;
+				my $s = $4; my $b = $5; my $c = $6;
+				$mem = Monitors::Memory->new('memory',$t,$f,$u);
+				$mem->{'shared'}	= $s;
+				$mem->{'buffered'}	= $b;
+				$mem->{'cached'}	= $c;
+			}
+			when (/Swap:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
+				my $t = $1; my $u = $2; my $f = $3;
+				$swap = Monitors::Memory->new('swap',$t,$f,$u);
+			}
+			when (/Total:\s+(\d+)\s+(\d+)\s+(\d+).*/) {
+				my $t = $1; my $u = $2; my $f = $3;
+				$total = Monitors::Memory->new('total',$t,$f,$u);
+			}
+			default {
+				warn colored("Line didn't match: |$ln| \n", "bold yellow");
+				$mem = $swap = $total = -1;
+			}	
+		}
+	}
+	return ($mem, $swap, $total);
 }
 
 1;
