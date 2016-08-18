@@ -104,7 +104,7 @@ given ($action) {
 		}
 		print Dumper($smart_ref) if (($verbose) and ($verbose > 1));
 	}
-	when (/network/) {
+	when (/net(?:work)?/) {
 		my ($success, $net_ref) = &check_network;
 		#print "=" x 72; print "\n";
 		#print "= In syscheck main: \n";
@@ -201,6 +201,12 @@ memory				Check the memory and swap for usage data. Emails
 mounts|fs|filesystems		Check the filesystems for usage data.  Emails
 				notification if/when threshold reached.  Thresholds
 				specified in config file.
+net|network			Check for issues with the network interfaces
+temps				Check the system temperatures.  May not be available
+				on VMs.
+smart				Check the SMART status of any SMART capable disks.  Does
+				NOT yet do RAID arrays.  Also, may not be available on VMs.
+all				Does all of the above checks.
 
 END
 
