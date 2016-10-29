@@ -325,7 +325,7 @@ sub check_mounts {
 				# skip the header
 				next;
 			}
-			when (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root|rootfs)/) {
+			when (/^(?:none|udev|(?:dev)?tmpfs|shm|cgroup_root|rootfs|cgmfs)/) {
 				# don't really care about tmp filesystems
 				# also, if there is a mount named "rootfs" it should also have a /dev assigned to it.
 				next;
