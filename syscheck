@@ -365,7 +365,7 @@ sub check_mounts {
 				}
 			}
 			# /dev/mapper/is--vmsrbn--p06--vg-root 944525732 5514996 891008484   1% /
-			when (/(\/dev\/mapper\/.*-?(?:-vg)?-root)\s(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s*(\/.*)/) {
+			when (/(\/dev\/mapper\/.*-?(?:-vg)?-root)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s*(\/.*)/) {
 				my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
 				my $mount = Monitors::Mount->new($mnt, $fs);
 				$total_mounts++;
