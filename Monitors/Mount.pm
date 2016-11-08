@@ -49,7 +49,7 @@ sub new {
 	} elsif ($disk =~ /(\/\/(?:\d{1,3}\.){3}\d{1,3}\/.*?\/?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 		my $fs = $1; $self->{'blocks'} = $2; $self->{'used'} = $3; 
 		$self->{'free'} = $4; $self->{'percent'} = $5; my $mnt = $6;
-	} elsif ($disk =~ /(\/dev\/mapper\/.*-?(?:-vg)?-root)\s(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s*(\/.*)/) {
+	} elsif ($disk =~ /(\/dev\/mapper\/.*-?(?:-vg)?-root)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s*(\/.*)/) {
 		my $fs = $1; $self->{'blocks'} = $2; $self->{'used'} = $3; 
 		$self->{'free'} = $4; $self->{'percent'} = $5; my $mnt = $6;
 	} else {
