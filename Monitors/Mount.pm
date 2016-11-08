@@ -49,6 +49,11 @@ sub new {
 	} elsif ($disk =~ /(\/\/(?:\d{1,3}\.){3}\d{1,3}\/.*?\/?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s+(.*)/) {
 		my $fs = $1; $self->{'blocks'} = $2; $self->{'used'} = $3; 
 		$self->{'free'} = $4; $self->{'percent'} = $5; my $mnt = $6;
+	} elsif ($disk =~ /(\/dev\/mapper\/.*-?-vg-root)\s(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s*(\/.*)/) {
+		my $fs = $1; $self->{'blocks'} = $2; $self->{'used'} = $3; 
+		$self->{'free'} = $4; $self->{'percent'} = $5; my $mnt = $6;
+	} else {
+		die colored("Unable to match disk: $self->{'device_node'}!", "bold red");
 	}
 	
 	$self->{'calc_percent_free'} = &__get_percent_free__($self->{'blocks'}, $self->{'free'});
@@ -57,21 +62,6 @@ sub new {
 
 	return $self;
 }
-
-#sub __get_binary__ {
-#	my $rtv = 1;
-#	my $bin = shift(@_);
-#
-#    my $bin_path = `which $bin`;
-#    chomp($bin_path);
-#
-#    if ((!defined($bin_path)) or ($bin_path eq "")) {
-#        warn colored("Unable to find the `$bin` utility! \n", "yellow");
-#        return 0;
-#    } else {
-#		return $bin_path;
-#	}
-#}
 
 sub __get_percent_free__ {
 	my $t 		= shift(@_);

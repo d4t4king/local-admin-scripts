@@ -364,9 +364,24 @@ sub check_mounts {
 					print colored("$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "green") if ($verbose);
 				}
 			}
+			# /dev/mapper/is--vmsrbn--p06--vg-root 944525732 5514996 891008484   1% /
+			when (/(\/dev\/mapper\/.*-?-vg-root)\s(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\%\s*(\/.*)/) {
+				my $fs = $1; my $b = $2; my $u = $3; my $av = $4; my $p = $5; my $mnt = $6;
+				my $mount = Monitors::Mount->new($mnt, $fs);
+				$total_mounts++;
+
+				if ($mount->{'calc_percent_free'} < 10) {
+					print colored("\n$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "yellow") if ($verbose);
+					&send_warning($action);
+					$mounts{"$fs\-$mnt"} += 2;
+					$rtv--;
+				} else { 
+					$rtv++; 
+					print colored("$fs\: ".sprintf("%-3.4f%%", $mount->{'calc_percent_free'})." percent free \n", "green") if ($verbose);
+				}
+			}
 			default {
-				print "Line didn't match: \n";
-				print "$line \n";
+				warn colored("Line didn't match: $line", "bold red");
 			}
 		}
 	}
