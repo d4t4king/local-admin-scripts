@@ -72,7 +72,7 @@ sub high_temp {
 				return 0;
 			}
 		} else {
-			warn colored("High temp limit not set by sensor. Using default max of 80 C.\n", "yellow");
+			warn colored("High temp limit not set by sensor. Using default max of 80 C.", "yellow");
 			if ($self->{'input_temp'} >= '80') {
 				return 1;
 			} else {
@@ -81,7 +81,7 @@ sub high_temp {
 			#return -1;
 		}
 	} else {
-		die colored("Input temp not set by sensor. \n", "bold red");
+		die colored("Input temp not set by sensor.", "bold red");
 	}
 }
 

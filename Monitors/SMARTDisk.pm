@@ -81,7 +81,7 @@ sub has_errors {
 						$has_errors = $from_bool{'true'} if (!$has_errors);
 					}
 				} else {
-					warn colored("Attribute unexpected id/name: $attr->{'id'}/$attr->{'name'} \n", "yellow");
+					warn colored("Attribute unexpected id/name: $attr->{'id'}/$attr->{'name'}", "yellow");
 				}
 			}
 		}
@@ -100,13 +100,6 @@ sub parse_attributes {
 		# looks like a disk device
 		# run with that....
 	} else {
-		#my $lines = "";
-					#Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:
-		#if ($arg =~ /Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:/s) { $lines = $1; }
-		#else { die colored("Couldn't isolate the attibutes grid in the sample provided. \n|$arg|\n", "bold red"); }
-		#my ($lines) = $arg =~ /.*Vendor\s+Specific\s+SMART\s+Attributes\s+with\s+Thresholds\:(.*?)SMART\s+Error\s+Log\s+Version\:.*/s;
-		# looks like the raw text from the command, or
-		# at least the pertinent section(s)
 		#print colored(Dumper($lines)."\n", "bold cyan");
 		foreach my $line ( (split(/\n+/, $arg)) ) {
 			#print colored("|$line| \n", "bold cyan");
@@ -149,7 +142,7 @@ sub parse_attributes {
 				when (/Device\s+does\s+not\s+support\s+Self\s+Test\s+logging/) {			next; }
 				when (/Please\s+specify\s+device\s+type\s+with\s+the\s+\-d\s+option\./) { 	next; }
 				when (/Use\s+smartctl\s+\-h\s+to\s+get\s+a\s+usage\s+summary/) {			next; }
-				default { die colored("Didn't recognize line: |$line| \n", "bold red"); }
+				default { die colored("Didn't recognize line: |$line|", "bold red"); }
 			}
 		}
 	}
@@ -218,7 +211,7 @@ sub update_data {
 			when (/Please\s+specify\s+device\s+type\s+with\s+the\s+\-d\s+option\./) 	{ next; }
 			when (/Use\s+smartctl\s+\-h\s+to\s+get\s+a\s+usage\s+summary/)				{ next; }
 			when (/none: Unable to detect device type/) 								{ next; }
-			default { die colored("Line didn't match: $line \n", "bold red"); }
+			default { die colored("Line didn't match: $line", "bold red"); }
 		}
 	}
 

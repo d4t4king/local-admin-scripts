@@ -69,7 +69,7 @@ sub __get_percent_free__ {
 
 	#print Dumper(\@_);
 
-	die colored("Total bytes was empty! \n", "bold red") if ((!defined($t)) or ($t == 0));
+	die colored("Total bytes was empty!", "bold red") if ((!defined($t)) or ($t == 0));
 
 	my $cp = ($f * 100) / $t;
 

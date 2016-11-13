@@ -123,7 +123,7 @@ sub populate {
 			when (/(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {
 				my $b = $1; my $p = $2; my $e = $3; my $d = $4; my $oc = $5; my $mc = $6; 
 				if (($rx) and ($tx)) {
-					die colored("Weird!  Xmit and Rcv should NOT be set at the same time! \n", "bold red");
+					die colored("Weird!  Xmit and Rcv should NOT be set at the same time!", "bold red");
 				} elsif (($rx) and (!$tx)) {
 					$self->{'rx_bytes'} = $b; $self->{'rx_packets'} = $p; $self->{'rx_errors'} = $e;
 					$self->{'rx_dropped'} = $d; $self->{'rx_overrun'} = $oc; $self->{'rx_mcast'} = $mc;
@@ -131,12 +131,12 @@ sub populate {
 					$self->{'tx_bytes'} = $b; $self->{'tx_packets'} = $p; $self->{'tx_errors'} = $e;
 					$self->{'tx_dropped'} = $d; $self->{'rx_carrier'} = $oc; $self->{'tx_collisions'} = $mc;
 				} elsif ((!$rx) and (!$tx)) {
-					warn colored("Looks like we got a data row before we were able to set Tx/Rx. \n", "yellow");
-				} else { die colored("In Monitors::Network::Interface->populate: unexpected! \n", "bold red"); }
+					warn colored("Looks like we got a data row before we were able to set Tx/Rx.", "yellow");
+				} else { die colored("In Monitors::Network::Interface->populate: unexpected!", "bold red"); }
 			}
 			default { 
 				print STDERR colored($l."\n", "bold red");
-				die colored("We should never actually get here! \n", "bold red"); 
+				die colored("We should never actually get here!", "bold red"); 
 			}
 		}
 	}

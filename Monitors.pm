@@ -54,7 +54,7 @@ sub sensor_parse {
 				if ((defined($bus)) and ($bus ne "")) {
 					$adpt->{'bus'} = $bus;
 				} else {
-					warn colored("Matched circuit, but didn't get bus ID! \n", "yellow");
+					warn colored("Matched circuit, but didn't get bus ID!", "yellow");
 				}
 			}
 			when (/Adapter: (.*)/) {
@@ -63,7 +63,7 @@ sub sensor_parse {
 				if ((defined($adapter)) and ($adapter ne "")) {
 					$adpt->{'adapter'} = $adapter;
 				} else {
-					warn colored("Matched adapter line, but didn't get adapter! \n", "yellow");
+					warn colored("Matched adapter line, but didn't get adapter!", "yellow");
 				}
 			}
 			# when we get this line, create a new sensor object and add it to the Adapter
@@ -160,7 +160,7 @@ sub sensor_parse {
 						}
 					} # given()
 				} else {
-					warn colored("Matched sensor line, but didn't get sensor or temp! \n", "yellow");
+					warn colored("Matched sensor line, but didn't get sensor or temp!", "yellow");
 				} # if/else
 			}
 			when (/\s*(fan\d+(?:\_(?:input|min|max))?)\:\s*([0-9.]+)?/) {
@@ -198,7 +198,7 @@ sub sensor_parse {
 			}
 			default {
 				# if we get here, there is something wrong or unexpected.
-				warn colored("Unrecognized section line: |$l| \n", "bold red");
+				warn colored("Unrecognized section line: |$l|", "bold red");
 			} # given()
 		}
 	}
@@ -220,7 +220,7 @@ sub get_binary {
 	chomp($bin_path);
 
 	if ((!defined($bin_path)) or ($bin_path eq "")) {
-		warn colored("Unable to find the `$bin` utility! \n", "yellow");
+		warn colored("Unable to find the `$bin` utility!", "yellow");
 		return undef;
 	} else {
 		return $bin_path;
@@ -254,7 +254,7 @@ sub get_meminfo {
 				$total = Monitors::Memory->new('total',$t,$f,$u);
 			}
 			default {
-				warn colored("Line didn't match: |$ln| \n", "bold yellow");
+				warn colored("Line didn't match: |$ln|", "bold yellow");
 				$mem = $swap = $total = -1;
 			}	
 		}

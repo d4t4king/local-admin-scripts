@@ -35,11 +35,11 @@ sub new {
 =begin
 sub AUTOLOAD {
 	my $self = shift;
-	my $type = ref($self) or die "$self is not an object \n";
+	my $type = ref($self) or die "$self is not an object";
 	my $field = $AUTOLOAD;
 	$field =~ s/.*://;
 	unless (exists($self->{$field})) {
-		die "$field does not exist in the object/class $type \n";
+		die "$field does not exist in the object/class $type";
 	}
 	if (@_) {
 		return $self->($name) = shift;
