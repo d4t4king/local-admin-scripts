@@ -174,7 +174,7 @@ given ($action) {
 		print Dumper($ref) if (($verbose) and ($verbose > 1));
 	}
 	default {
-		die colored("Unrecognized action: $action \n", "bold red");
+		die colored("Unrecognized action: $action", "bold red");
 	}
 }
 
@@ -314,10 +314,10 @@ sub check_mounts {
 	my %mounts;
 
 	my $df = Monitors->get_binary('df');
-	die colored("Unabled to get `df` binary! \n", "bold red") if ((!defined($df)) or ($df eq ""));
+	die colored("Unabled to get `df` binary!", "bold red") if ((!defined($df)) or ($df eq ""));
 
 	print colored("Checking mounts .... ", "bold green");
-	open DF, "$df |" or die "There was a problem loading the df utility: $! \n";
+	open DF, "$df |" or die "There was a problem loading the df utility: $!";
 	while (my $line = <DF>) {
 		chomp($line);
 		given ($line) {
@@ -385,7 +385,7 @@ sub check_mounts {
 			}
 		}
 	}
-	close DF or die "There was a problem closing the df utility: $! \n";
+	close DF or die "There was a problem closing the df utility: $!";
 
 	$mounts{'_ALL_'} = $total_mounts;
 	return \%mounts;
@@ -393,14 +393,14 @@ sub check_mounts {
 
 sub check_memory {
 	my $free = Monitors->get_binary('free');
-	die colored("Unable to get `free` bindary! \n", "bold red") if ((!defined($free)) or ($free eq ""));
+	die colored("Unable to get `free` binary!", "bold red") if ((!defined($free)) or ($free eq ""));
 
 	my $rtv = 0;
 	my $total_mems = 0;
 	my %mems;
 	
 	print colored("Checking memory ..... ", "bold green");
-	open FREE, "$free -t |" or die "There was a problem loading the free utility: $! \n";
+	open FREE, "$free -t |" or die "There was a problem loading the free utility: $!";
 	while (my $line = <FREE>) {
 		chomp($line);
 		given ($line) {
@@ -510,7 +510,7 @@ sub check_memory {
 			}
 		}
 	}
-	close FREE or die "There was a problem closing the free utility: $! \n";
+	close FREE or die "There was a problem closing the free utility: $!";
 
 	$mems{'_ALL_'} = $total_mems;
 	return \%mems;
@@ -520,7 +520,7 @@ sub check_temps {
 
 	my $sensors = Monitors->get_binary('sensors');
 
-	die colored("Unable to do any sensor checks.  lm_sensors doesn't appear to be installed. \n", "bold red") if ((!defined($sensors)) or ($sensors eq ""));
+	die colored("Unable to do any sensor checks.  lm_sensors doesn't appear to be installed.", "bold red") if ((!defined($sensors)) or ($sensors eq ""));
 
 	my $rtv = 0;
 	my $total_sensors = 0;
@@ -614,9 +614,9 @@ sub check_network {
 
 sub is_vm {
 	my $dmidecode = Monitors->get_binary('dmidecode');
-	die colored("Couldn't find the dmidecode binary! \n", "bold red") if ((!defined($dmidecode)) or ($dmidecode eq ''));
+	die colored("Couldn't find the dmidecode binary!", "bold red") if ((!defined($dmidecode)) or ($dmidecode eq ''));
 	my $grep = Monitors->get_binary('grep');
-	die colored("Couldn't find the grep binary! \n", "bold red") if ((!defined($grep)) or ($grep eq ''));
+	die colored("Couldn't find the grep binary!", "bold red") if ((!defined($grep)) or ($grep eq ''));
 
 	my @out = qx($dmidecode | $grep -i product);
 	my $is_vm = 0;
